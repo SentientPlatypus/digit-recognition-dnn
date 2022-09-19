@@ -10,6 +10,6 @@ pub struct Neuron {
 
 impl Neuron {
     fn set_dendrites(&self, n:usize) {
-        print("kill me")
+        println!("kill me");
     }
 }
