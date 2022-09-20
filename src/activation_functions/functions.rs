@@ -1,3 +1,6 @@
+use std::cmp;
+
+
 pub fn sigmoid(v: f64) -> f64 {
     if v < -40.0 {
         0.0
@@ -9,10 +12,5 @@ pub fn sigmoid(v: f64) -> f64 {
 }
 
 pub fn relu(v:f64) -> f64 {
-    if v <= 0
-    {
-        0.0
-    } else {
-        v
-    }
+    cmp::max(0, v)
 }
