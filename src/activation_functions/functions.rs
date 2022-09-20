@@ -7,3 +7,12 @@ pub fn sigmoid(v: f64) -> f64 {
         1.0 / (1.0 + f64::exp(-v))
     }
 }
+
+pub fn relu(v:f64) -> f64 {
+    if v <= 0
+    {
+        0.0
+    } else {
+        v
+    }
+}
