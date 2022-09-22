@@ -12,5 +12,9 @@ pub fn sigmoid(v: f64) -> f64 {
 }
 
 pub fn relu(v:f64) -> f64 {
-    cmp::max(0, v)
+    if v < 0
+    {
+        0
+    }
+    v
 }

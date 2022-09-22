@@ -10,11 +10,3 @@ pub fn convert_to_grayscale() {
   img.save("num.png").unwrap();
 }
 
-pub fn get_grayscale_vector(img: image) -> Vec<i8> {
-  *img = img.grayscale();
-  let to_return: Vec<i8> = Vec::new();
-  for pixel in img.pixels {
-    to_return.push(pixel);
-  }
-  to_return
-}
