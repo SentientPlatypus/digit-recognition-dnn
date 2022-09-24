@@ -12,9 +12,9 @@ pub fn sigmoid(v: f64) -> f64 {
 }
 
 pub fn relu(v:f64) -> f64 {
-    if v < 0
+    if v < 0.0
     {
-        0
+        return 0.0
     }
     v
 }
