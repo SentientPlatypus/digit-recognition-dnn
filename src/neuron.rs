@@ -10,6 +10,9 @@ pub struct Neuron {
 
 impl Neuron {
     fn set_dendrites(&self, n:usize) {
-        println!("kill me");
+        let d:Dendrite = Dendrite {
+            d_weight = 0.0,
+            d_points_to = 789789
+        }
     }
 }

@@ -12,5 +12,10 @@ struct Network {
 }
 
 impl Network {
-
+    fn initialize(&self){
+        
+        for layer_index in 0..self.layers.len() {
+            
+        }   
+    }
 }
