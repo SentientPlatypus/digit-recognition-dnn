@@ -1,4 +1,4 @@
-use crate::{layer::{Layer, self}, neuron::Neuron};
+use crate::{layer::{Layer}, neuron::Neuron};
 use rand::Rng;
 
 
@@ -17,15 +17,14 @@ impl Network {
     
     //initializes network
     fn initialize(&mut self){
-        for layer_index in 0..self.layers.len()-1 
+        for layer_index in 0..self.layers.len()-2 
         {
             for neuron_index in 0..self.layers[layer_index].neurons.len() 
             {
-                let neuron:Neuron = self.layers[layer_index].neurons[neuron_index];
-                for to_neuron in self.layers[layer_index + 1].neurons 
-                {
-                    to_neuron.weights = 
-                }
+                let neuron: &mut Neuron = &mut self.layers[layer_index].neurons[neuron_index];
+                self.layers[layer_index + 1].neurons.iter_mut().for_each(|to_neuron| {
+                    to_neuron.generate_random_weights();
+                });
             }
         }   
     }
