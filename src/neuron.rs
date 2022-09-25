@@ -1,11 +1,11 @@
 use crate::dendrite::Dendrite;
 
 pub struct Neuron {
-    n_id: usize,
-    n_value: i8,
-    weights: Vec<f64>,
-    n_bias: f32,
-    n_delta:i8
+    pub n_id: usize,
+    pub n_value: f64,
+    pub weights: Vec<f64>,
+    pub n_bias: f32,
+    pub n_delta:i8
 }
 
 impl Neuron {
