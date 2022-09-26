@@ -1,14 +1,8 @@
 use crate::neuron::{Neuron, self};
-use len_trait::Len;
+use len_trait::{Len, Empty};
 
 pub struct Layer {
     pub neurons: Vec<Neuron>
-}
-
-impl Len for Layer {
-    fn len(&self) -> usize {
-        self.neurons.len()
-    }
 }
 
 impl Layer {
@@ -40,5 +34,9 @@ impl Layer {
 
     fn get_neuron(&self, index:usize) -> &Neuron {
         &self.neurons[index]
+    }
+
+    pub fn len(&self) -> usize {
+        self.neurons.len()
     }
 }

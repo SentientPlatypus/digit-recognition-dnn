@@ -1,6 +1,5 @@
 use crate::{layer::{Layer}, neuron::Neuron};
-use rand::Rng;
-use len_trait::Len;
+
 
 
 
@@ -8,14 +7,12 @@ struct Network {
     layers: Vec<Layer>,
 }
 
-impl Len for Network {
-    fn len(&self) -> usize {
-        self.layers.len()
-    }
-}
+
 
 impl Network {
-    
+    pub fn len(&self) -> usize {
+        self.layers.len()
+    }
     //initializes network
     pub fn initialize(&mut self){
         (0..self.len()-2).for_each(|layer_index: usize| 
@@ -24,8 +21,7 @@ impl Network {
             {
                 self.layers[layer_index + 1].neurons.iter_mut().for_each(|to_neuron: &mut Neuron| 
                 {
-                    to_neuron.weights = vec![0; self.layers[layer_index].len()];
-                    to_neuron.generate_random_weights();
+                    to_neuron.generate_random_weight(neuron_index);
                 });
             });
         });   
