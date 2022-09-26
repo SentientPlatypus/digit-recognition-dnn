@@ -6,7 +6,7 @@ pub struct Layer {
 }
 
 impl Layer {
-    fn build(n:usize) -> Layer
+    pub fn build(n:usize) -> Layer
     {
         let neurons:Vec<Neuron> = Vec::new();
         let mut layer: Layer = Layer {

@@ -1,8 +1,8 @@
-use image::{self, imageops::*};
+use image::{self, imageops::*, Pixel, Pixels, Luma};
 
 
 
-pub fn convert_to_grayscale() {
+pub fn convert_to_grayscale() -> Vec<&'static Luma<u8>> {
   let img = match image::open("num.jpeg")
   {
     Ok(t) => {
@@ -13,7 +13,12 @@ pub fn convert_to_grayscale() {
     }
   };
   let gray_img = img.to_luma8();
-  gray_img.save("gray.jpeg").unwrap();
+
+  let pixel_vector = Vec::new();
+  gray_img.pixels().for_each(|pixel| {
+    pixel_vector.push(pixel);
+  });
+  pixel_vector
 }
 
 
