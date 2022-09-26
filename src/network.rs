@@ -27,12 +27,12 @@ impl Network {
     pub fn build(layer_sizes:Vec<usize>) -> Network {
         let layers:Vec<Layer> = Vec::new();
         let mut network:Network = Network { layers: layers };
-        (0..layer_sizes).for_each(|n:usize|
+        for size in layer_sizes
         {
             network.layers.push(
-                Layer::build(n)
+                Layer::build(size)
             )
-        });
+        }
         network
     }
 }
