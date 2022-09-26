@@ -1,4 +1,6 @@
 use rand::Rng;
+
+#[derive(Default)]
 pub struct Neuron {
     pub n_id: usize,
     pub n_value: f64,

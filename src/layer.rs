@@ -1,4 +1,4 @@
-use crate::neuron::Neuron;
+use crate::neuron::{Neuron, self};
 
 
 pub struct Layer {
@@ -6,8 +6,26 @@ pub struct Layer {
 }
 
 impl Layer {
-    fn initialize(&self, n:i8) {
+    fn build(n:usize) -> Layer
+    {
+        let neurons:Vec<Neuron> = Vec::new();
+        let mut layer: Layer = Layer {
+            neurons:neurons
+        };
+        (0..n-1).for_each(|i: usize| 
+        {
+            layer.neurons.push(
+                Neuron {
+                    n_id: i,
+                    n_value : 0.0,
+                    weights : Vec::new(),
+                    n_bias : 0.0,
+                    n_delta : 0
+                }
+            )
+        });
 
+        layer
     }
 
     fn set_neuron(&mut self, neuron:Neuron, index:usize) {

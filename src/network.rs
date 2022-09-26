@@ -6,26 +6,27 @@ use rand::Rng;
 
 struct Network {
     layers: Vec<Layer>,
-    net_total_layers: u8,
-    net_inputs: Vec<i8>,
-    net_outputs: Vec<i8>,
-    net_layers:Vec<u8>,
-    net_learning_rate: i8
 }
 
 impl Network {
     
     //initializes network
-    fn initialize(&mut self){
-        for layer_index in 0..self.layers.len()-2 
+    pub fn initialize(&mut self){
+        (0..self.layers.len()-2).for_each(|layer_index: usize| 
         {
-            for neuron_index in 0..self.layers[layer_index].neurons.len() 
+            (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
             {
-                let neuron: &mut Neuron = &mut self.layers[layer_index].neurons[neuron_index];
-                self.layers[layer_index + 1].neurons.iter_mut().for_each(|to_neuron| {
+                self.layers[layer_index + 1].neurons.iter_mut().for_each(|to_neuron: &mut Neuron| 
+                {
                     to_neuron.generate_random_weights();
                 });
-            }
-        }   
+            });
+        });   
+    }
+
+    pub fn build() -> Network {
+        let layers:Vec<Layer> = Vec::new();
+        let network:Network = Network { layers: layers };
+        network
     }
 }
