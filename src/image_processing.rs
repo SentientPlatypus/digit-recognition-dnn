@@ -14,7 +14,7 @@ pub fn convert_to_grayscale() -> Vec<&'static Luma<u8>> {
   };
   let gray_img = img.to_luma8();
 
-  let pixel_vector = Vec::new();
+  let mut pixel_vector = Vec::new();
   gray_img.pixels().for_each(|pixel| {
     pixel_vector.push(pixel);
   });
