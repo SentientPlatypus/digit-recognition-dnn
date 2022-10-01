@@ -17,14 +17,13 @@ impl Layer {
             layer.neurons.push(
                 Neuron {
                     n_id: i,
-                    n_value : 0.0,
+                    n_value : 0,
                     weights : Vec::new(),
                     n_bias : 0.0,
                     n_delta : 0
                 }
             )
         });
-
         layer
     }
 

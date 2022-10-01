@@ -1,5 +1,5 @@
 [package]
-name = "deep_neural_network"
+name = "digit-recognition-nn"
 version = "0.1.0"
 edition = "2021"
 

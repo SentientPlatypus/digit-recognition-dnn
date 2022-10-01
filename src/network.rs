@@ -3,7 +3,7 @@ use crate::{layer::{Layer}, neuron::Neuron};
 
 
 
-struct Network {
+pub struct Network {
     layers: Vec<Layer>,
 }
 
