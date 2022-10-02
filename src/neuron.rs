@@ -3,9 +3,9 @@ use rand::Rng;
 #[derive(Default)]
 pub struct Neuron {
     pub n_id: usize,
-    pub n_value: u8,
+    pub n_value: f64,
     pub weights: Vec<f64>,
-    pub n_bias: f32,
+    pub n_bias: f64,
     pub n_delta:i8
 }
 
@@ -14,7 +14,7 @@ impl Neuron {
         self.weights[n] = weight;
     }
 
-    pub fn set_value(&mut self, value:u8) {
+    pub fn set_value(&mut self, value:f64) {
         self.n_value = value;
     }
 

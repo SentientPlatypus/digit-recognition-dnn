@@ -1,6 +1,9 @@
-use crate::{layer::{Layer}, neuron::Neuron};
+use crate::{layer::{Layer, self}, neuron::Neuron};
 
-
+use crate::activation_functions::functions::{
+    sigmoid,
+    relu
+};
 
 
 pub struct Network {
@@ -38,4 +41,21 @@ impl Network {
         }
         network
     }
+
+
+    pub fn feedforward(&mut self) {
+        for layer_index in 1..&self.layers.len()-1 {
+            for neuron in &mut self.layers[layer_index].neurons {
+                neuron.n_value = {
+                    let mut sum:f64 = 0.0;
+                    for weight_index in 0..neuron.weights.len()-1 {
+                        sum += neuron.weights[weight_index] * &self.layers[layer_index - 1].neurons[weight_index].n_value;
+                    }
+                    sum += neuron.n_bias;
+                    sigmoid(sum)
+                }
+            }
+        }
+    }
+
 }
