@@ -1,5 +1,5 @@
 use crate::{layer::{Layer, self}, neuron::Neuron};
-
+use itertools::Itertools;
 use crate::activation_functions::functions::{
     sigmoid,
     relu
@@ -39,23 +39,38 @@ impl Network {
                 Layer::build(size)
             )
         }
+        network.initialize();
         network
     }
 
-
     pub fn feedforward(&mut self) {
         for layer_index in 1..&self.layers.len()-1 {
-            for neuron in &mut self.layers[layer_index].neurons {
-                neuron.n_value = {
+            for neuron_index in 0..&self.layers[layer_index].neurons.len()-1 {
+                self.layers[layer_index].neurons[neuron_index].n_value = {
                     let mut sum:f64 = 0.0;
-                    for weight_index in 0..neuron.weights.len()-1 {
-                        sum += neuron.weights[weight_index] * &self.layers[layer_index - 1].neurons[weight_index].n_value;
+                    for weight_index in 0..self.layers[layer_index].neurons[neuron_index].weights.len()-1 {
+                        sum += (self.layers[layer_index].neurons[neuron_index].weights[weight_index] * &self.layers[layer_index - 1].neurons[weight_index].n_value);
                     }
-                    sum += neuron.n_bias;
+                    sum += self.layers[layer_index].neurons[neuron_index].n_bias;
                     sigmoid(sum)
                 }
             }
         }
     }
+    /* pub fn feedforward(&mut self) {
+    //     for layer_index in 1..&self.layers.len()-1 {
+    //         for neuron in &mut self.layers[layer_index].neurons {
+    //             neuron.n_value = {
+    //                 let mut sum:f64 = 0.0;
+    //                 for weight_index in 0..neuron.weights.len()-1 {
+    //                     sum += (neuron.weights[weight_index] * &self.layers.tuplewindows()[layer_index - 1].neurons[weight_index].n_value);
+    //                 }
+    //                 sum += neuron.n_bias;
+    //                 sigmoid(sum)
+    //             }
+    //         }
+    //     }
+    // }
+    */
 
 }
