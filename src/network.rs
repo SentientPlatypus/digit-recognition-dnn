@@ -1,4 +1,4 @@
-use crate::{layer::{Layer, self}, neuron::Neuron};
+use crate::{layer::{Layer, self}, neuron::{Neuron, self}};
 use itertools::Itertools;
 use crate::activation_functions::functions::{
     sigmoid,
@@ -55,6 +55,13 @@ impl Network {
                     sigmoid(sum)
                 }
             }
+        }
+    }
+
+    pub fn set_inputs(&mut self, pixels:Vec<u8>) {
+        let input_layer = &mut self.layers[0];
+        for neuron_index in 0..input_layer.len() {
+            input_layer.set_neuron_val(f64::from(pixels[neuron_index]), neuron_index);
         }
     }
     /* pub fn feedforward(&mut self) {

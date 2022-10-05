@@ -27,8 +27,12 @@ impl Layer {
         layer
     }
 
-    fn set_neuron(&mut self, neuron:Neuron, index:usize) {
+    pub fn set_neuron(&mut self, neuron:Neuron, index:usize) {
         self.neurons[index] = neuron;
+    }
+
+    pub fn set_neuron_val(&mut self, value:f64, index:usize) {
+        self.neurons[index].n_value = value;
     }
 
     fn get_neuron(&self, index:usize) -> &Neuron {
