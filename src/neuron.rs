@@ -19,6 +19,11 @@ impl Neuron {
     }
 
     pub fn generate_random_weight(&mut self, index:usize) {
-        self.weights[index] = rand::thread_rng().gen_range(-1.0..1.0);
+        if index >= self.weights.len() {
+            self.weights.push(rand::thread_rng().gen_range(-1.0..1.0));
+        }
+        else {
+            self.weights[index] = rand::thread_rng().gen_range(-1.0..1.0);
+        }
     }
 }
