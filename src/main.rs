@@ -15,7 +15,8 @@ use crate::activation_functions::functions::{
 
 
 fn main() {
-    let network = network::Network::build(vec![28 * 28, 16, 16, 8]);
-
+    let mut network: network::Network = network::Network::build(vec![28 * 28, 16, 16, 8]);
+    let img_gray_vec: Vec<u8> = image_processing::convert_to_grayscale();
+    network.set_inputs(img_gray_vec);
 }
 
