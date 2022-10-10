@@ -1,5 +1,4 @@
 use crate::{layer::{Layer, self}, neuron::{Neuron, self}};
-use itertools::Itertools;
 use crate::activation_functions::functions::{
     sigmoid,
     relu
@@ -58,26 +57,41 @@ impl Network {
         }
     }
 
+    pub fn get_output_neuron(&self) -> &Neuron {
+        match self.layers.last() {
+            Some(lyr) => {
+                lyr.get_max_neuron()
+            },
+            None => {
+                panic!("failed to get output layer");
+            }
+        }
+    }
+
+    pub fn get_cost_vector(&self, target_id:usize) -> Vec<f64> {
+        let mut cost_vec:Vec<f64> = Vec::new();
+        match self.layers.last() {
+            Some(lyr) => {
+                for neuron in &lyr.neurons {
+                    if neuron.n_id == target_id {
+                        cost_vec.push((1.0 - neuron.n_value).powf(2.0));
+                    } else {
+                        cost_vec.push((0.0 - neuron.n_value).powf(2.0));
+                    }
+                }
+            },
+            None => {
+                panic!("failed to get output layer");
+            }
+        }
+        cost_vec
+    }
+
     pub fn set_inputs(&mut self, pixels:Vec<u8>) {
         let input_layer = &mut self.layers[0];
         for neuron_index in 0..input_layer.len() {
             input_layer.set_neuron_val(f64::from(pixels[neuron_index]), neuron_index);
         }
     }
-    /* pub fn feedforward(&mut self) {
-    //     for layer_index in 1..&self.layers.len()-1 {
-    //         for neuron in &mut self.layers[layer_index].neurons {
-    //             neuron.n_value = {
-    //                 let mut sum:f64 = 0.0;
-    //                 for weight_index in 0..neuron.weights.len()-1 {
-    //                     sum += (neuron.weights[weight_index] * &self.layers.tuplewindows()[layer_index - 1].neurons[weight_index].n_value);
-    //                 }
-    //                 sum += neuron.n_bias;
-    //                 sigmoid(sum)
-    //             }
-    //         }
-    //     }
-    // }
-    */
 
 }

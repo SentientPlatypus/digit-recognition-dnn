@@ -27,6 +27,16 @@ impl Layer {
         layer
     }
 
+    pub fn get_max_neuron(&self) -> &Neuron {
+        let mut max_neuron: &Neuron = &self.neurons[0];
+        for neuron_index in 1..&self.neurons.len() - 1 {
+            if self.neurons[neuron_index].n_value > max_neuron.n_value {
+                max_neuron = &self.neurons[neuron_index];
+            }
+        }
+        max_neuron
+    }
+
     pub fn set_neuron(&mut self, neuron:Neuron, index:usize) {
         self.neurons[index] = neuron;
     }
