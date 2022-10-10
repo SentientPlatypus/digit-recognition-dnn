@@ -3,6 +3,7 @@ use crate::activation_functions::functions::{
     sigmoid,
     relu
 };
+use::math::mean;
 
 
 pub struct Network {
@@ -68,23 +69,20 @@ impl Network {
         }
     }
 
-    pub fn get_cost_vector(&self, target_id:usize) -> Vec<f64> {
+    pub fn get_cost_vector(&self, layer_id:usize, target_id:usize) -> Vec<f64> {
         let mut cost_vec:Vec<f64> = Vec::new();
-        match self.layers.last() {
-            Some(lyr) => {
-                for neuron in &lyr.neurons {
-                    if neuron.n_id == target_id {
-                        cost_vec.push((1.0 - neuron.n_value).powf(2.0));
-                    } else {
-                        cost_vec.push((0.0 - neuron.n_value).powf(2.0));
-                    }
-                }
-            },
-            None => {
-                panic!("failed to get output layer");
+        for neuron in &self.layers[layer_id].neurons  {
+            if neuron.n_id == target_id {
+                cost_vec.push((1.0 - neuron.n_value).powf(2.0));
+            } else {
+                cost_vec.push((0.0 - neuron.n_value).powf(2.0));
             }
         }
         cost_vec
+    }
+
+    pub fn get_error(&self, cost_vector:Vec<f64>) -> f64 {
+        mean::arithmetic(&cost_vector[..])
     }
 
     pub fn set_inputs(&mut self, pixels:Vec<u8>) {
