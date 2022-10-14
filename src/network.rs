@@ -52,6 +52,7 @@ impl Network {
                         sum += (self.layers[layer_index].neurons[neuron_index].weights[weight_index] * &self.layers[layer_index - 1].neurons[weight_index].n_value);
                     }
                     sum += self.layers[layer_index].neurons[neuron_index].n_bias;
+                    self.layers[layer_index].neurons[neuron_index].n_sum = sum;
                     sigmoid(sum)
                 }
             }
@@ -69,11 +70,11 @@ impl Network {
         }
     }
 
-    pub fn get_cost_vector(&self, layer_id:usize, target_id:usize) -> Vec<f64> {
+    pub fn get_cost_vector(&self, layer_id:usize, target_id:usize, desired_output:f64) -> Vec<f64> {
         let mut cost_vec:Vec<f64> = Vec::new();
         for neuron in &self.layers[layer_id].neurons  {
             if neuron.n_id == target_id {
-                cost_vec.push((1.0 - neuron.n_value).powf(2.0));
+                cost_vec.push((desired_output - neuron.n_value).powf(2.0));
             } else {
                 cost_vec.push((0.0 - neuron.n_value).powf(2.0));
             }
@@ -81,8 +82,18 @@ impl Network {
         cost_vec
     }
 
-    pub fn get_error(&self, cost_vector:Vec<f64>) -> f64 {
+    pub fn get_mse_error(&self, cost_vector:Vec<f64>) -> f64 {
         mean::arithmetic(&cost_vector[..])
+    }
+
+    pub fn determine_weight_change(&mut self, desired_output_id:usize, desired_output:f64, layer_id:usize) {
+        for neuron_index in 0..&self.layers[layer_id].neurons.len() - 1 {
+            for weight_index in 0..&self.layers[layer_id].neurons[neuron_index].weights.len() - 1 {
+                let prev_activation = &self.layers[layer_id - 1].neurons[weight_index].n_value;
+                let neuron = &mut self.layers[layer_id].neurons[neuron_index];
+                neuron.weights[weight_index] -= (2.0 * (neuron.n_value - neuron.n_bias)) * neuron.n_sum
+            }       
+        }
     }
 
     pub fn set_inputs(&mut self, pixels:Vec<u8>) {

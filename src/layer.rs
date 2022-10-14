@@ -20,7 +20,8 @@ impl Layer {
                     n_value : 0.0,
                     weights : Vec::new(),
                     n_bias : 0.0,
-                    n_delta : 0
+                    n_delta : 0,
+                    n_sum : 0.0
                 }
             )
         });

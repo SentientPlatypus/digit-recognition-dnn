@@ -6,7 +6,8 @@ pub struct Neuron {
     pub n_value: f64,
     pub weights: Vec<f64>,
     pub n_bias: f64,
-    pub n_delta:i8
+    pub n_delta:i8,
+    pub n_sum: f64
 }
 
 impl Neuron {
