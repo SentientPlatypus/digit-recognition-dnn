@@ -36,16 +36,12 @@ impl Network {
         let mut network:Network = Network { layers: layers };
         for size_index in 0..layer_sizes.len() - 1
         {
-            let kind:LayerKind;
-            if size_index == 0 {
-                kind = LayerKind::input_layer;
-            } 
-            else if size_index == layer_sizes.len() - 1 {
-                kind = LayerKind::output_layer;
-            }
-            else {
-                kind = LayerKind::hidden_layer;
-            }
+            let last_index = layer_sizes.len() - 1;
+            let kind:LayerKind = match size_index {
+                0 => LayerKind::hidden_layer,
+                last_index=> LayerKind::output_layer,
+                _=> LayerKind::hidden_layer
+            };
 
             network.layers.push(
                 Layer::build(layer_sizes[size_index], kind)
