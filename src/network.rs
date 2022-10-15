@@ -1,7 +1,8 @@
 use crate::{layer::{Layer, self}, neuron::{Neuron, self}};
 use crate::activation_functions::functions::{
     sigmoid,
-    relu
+    relu,
+    derivative_sigmoid
 };
 use::math::mean;
 
@@ -90,8 +91,14 @@ impl Network {
         for neuron_index in 0..&self.layers[layer_id].neurons.len() - 1 {
             for weight_index in 0..&self.layers[layer_id].neurons[neuron_index].weights.len() - 1 {
                 let prev_activation = &self.layers[layer_id - 1].neurons[weight_index].n_value;
-                let neuron = &mut self.layers[layer_id].neurons[neuron_index];
-                neuron.weights[weight_index] -= (2.0 * (neuron.n_value - neuron.n_bias)) * neuron.n_sum
+                let output_size = match self.layers.last() {
+                    Some(lyr) => lyr.len(),
+                    None => panic!("failed to get output layer")
+                };
+                {
+                    let neuron = &self.layers[layer_id].neurons[neuron_index];
+                    self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= (2.0 * (neuron.n_value - neuron.n_bias)) * derivative_sigmoid(neuron.n_sum) * prev_activation;     
+                }
             }       
         }
     }
