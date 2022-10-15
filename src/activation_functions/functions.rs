@@ -11,6 +11,10 @@ pub fn sigmoid(v: f64) -> f64 {
     }
 }
 
+pub fn derivative_sigmoid(v:f64) ->f64 {
+    sigmoid(v) * (1.0 - sigmoid(v))
+}
+
 pub fn relu(v:f64) -> f64 {
     if v < 0.0
     {
