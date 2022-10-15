@@ -1,4 +1,4 @@
-use crate::{layer::{Layer, self}, neuron::{Neuron, self}};
+use crate::{layer::{Layer, self, LayerKind}, neuron::{Neuron, self}};
 use crate::activation_functions::functions::{
     sigmoid,
     relu,
@@ -34,10 +34,21 @@ impl Network {
     pub fn build(layer_sizes:Vec<usize>) -> Network {
         let layers:Vec<Layer> = Vec::new();
         let mut network:Network = Network { layers: layers };
-        for size in layer_sizes
+        for size_index in 0..layer_sizes.len() - 1
         {
+            let kind:LayerKind;
+            if size_index == 0 {
+                kind = LayerKind::input_layer;
+            } 
+            else if size_index == layer_sizes.len() - 1 {
+                kind = LayerKind::output_layer;
+            }
+            else {
+                kind = LayerKind::hidden_layer;
+            }
+
             network.layers.push(
-                Layer::build(size)
+                Layer::build(layer_sizes[size_index], kind)
             )
         }
         network.initialize();
@@ -107,10 +118,16 @@ impl Network {
                 }
                 self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= (2.0 * (neuron.n_value - y)) * 
                 derivative_sigmoid(neuron.n_sum) * prev_activation;   
-                
             }
         }       
     }
+
+
+
+
+
+
+    
     pub fn set_inputs(&mut self, pixels:Vec<u8>) {
         let input_layer = &mut self.layers[0];
         for neuron_index in 0..input_layer.len() {

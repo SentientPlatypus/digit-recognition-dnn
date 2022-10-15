@@ -1,16 +1,24 @@
 use crate::neuron::{Neuron, self};
 use len_trait::{Len, Empty};
 
+
+pub enum LayerKind {
+    input_layer,
+    output_layer,
+    hidden_layer
+}
 pub struct Layer {
-    pub neurons: Vec<Neuron>
+    pub neurons: Vec<Neuron>,
+    pub kind: LayerKind
 }
 
 impl Layer {
-    pub fn build(n:usize) -> Layer
+    pub fn build(n:usize, kind:LayerKind) -> Layer
     {
         let neurons:Vec<Neuron> = Vec::new();
         let mut layer: Layer = Layer {
-            neurons:neurons
+            neurons:neurons,
+            kind: kind
         };
         (0..n-1).for_each(|i: usize| 
         {
