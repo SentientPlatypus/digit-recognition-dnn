@@ -87,22 +87,30 @@ impl Network {
         mean::arithmetic(&cost_vector[..])
     }
 
-    pub fn determine_weight_change(&mut self, desired_output_id:usize, desired_output:f64, layer_id:usize) {
-        for neuron_index in 0..&self.layers[layer_id].neurons.len() - 1 {
-            for weight_index in 0..&self.layers[layer_id].neurons[neuron_index].weights.len() - 1 {
+    pub fn determine_weight_change(&mut self, desired_output_id:usize, desired_output:f64, layer_id:usize) 
+    {
+        for neuron_index in 0..&self.layers[layer_id].neurons.len() - 1 
+        {
+            for weight_index in 0..&self.layers[layer_id].neurons[neuron_index].weights.len() - 1 
+            {
                 let prev_activation = &self.layers[layer_id - 1].neurons[weight_index].n_value;
-                let output_size = match self.layers.last() {
+                let output_size = match self.layers.last() 
+                {
                     Some(lyr) => lyr.len(),
                     None => panic!("failed to get output layer")
                 };
+                let neuron = &self.layers[layer_id].neurons[neuron_index];
+                let mut y = &0.0;
+                if neuron_index == desired_output_id 
                 {
-                    let neuron = &self.layers[layer_id].neurons[neuron_index];
-                    self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= (2.0 * (neuron.n_value - neuron.n_bias)) * derivative_sigmoid(neuron.n_sum) * prev_activation;     
+                    y = &desired_output;
                 }
-            }       
-        }
+                self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= (2.0 * (neuron.n_value - y)) * 
+                derivative_sigmoid(neuron.n_sum) * prev_activation;   
+                
+            }
+        }       
     }
-
     pub fn set_inputs(&mut self, pixels:Vec<u8>) {
         let input_layer = &mut self.layers[0];
         for neuron_index in 0..input_layer.len() {
@@ -111,3 +119,4 @@ impl Network {
     }
 
 }
+
