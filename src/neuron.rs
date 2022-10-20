@@ -1,5 +1,7 @@
 use rand::Rng;
 
+use crate::activation_functions::functions::derivative_sigmoid;
+
 #[derive(Default)]
 
 
@@ -15,13 +17,31 @@ pub struct Neuron {
 }
 
 impl Neuron {
-    fn set_weights(&mut self, n:usize, weight:f64) {
+    pub fn set_weights(&mut self, n:usize, weight:f64) {
         self.weights[n] = weight;
     }
 
+    pub fn update_weights(&mut self, n:usize, change:f64) {
+        self.weights[n] -= change;
+    }
     pub fn set_value(&mut self, value:f64) {
         self.n_value = value;
     }
+
+    pub fn dC_over_dA(&self, desired_output:f64) -> f64 {
+        return (2.0 * (self.n_value  - desired_output))
+    }
+
+    pub fn dA_over_dZ(&self) -> f64{
+        derivative_sigmoid(self.n_sum)
+    }
+
+    pub fn dZ_over_dB(&self) -> f64 {
+        1.0
+    }
+
+    
+
 
     pub fn generate_random_weight(&mut self, index:usize) {
         if index >= self.weights.len() {

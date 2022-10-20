@@ -94,7 +94,7 @@ impl Network {
         mean::arithmetic(&cost_vector[..])
     }
 
-    pub fn backpropagate(&mut self, desired_output_id:usize, desired_output:f64, layer_id:usize) 
+    pub fn backpropagate(&mut self, &desired_output_id: &usize, &desired_output: &f64, &layer_id: &usize) 
     {
         for neuron_index in 0..&self.layers[layer_id].neurons.len() - 1 
         {
@@ -106,24 +106,40 @@ impl Network {
                     Some(lyr) => lyr.len(),
                     None => panic!("failed to get output layer")
                 };
-                let neuron = &self.layers[layer_id].neurons[neuron_index];
                 let mut y = &0.0;
                 if neuron_index == desired_output_id 
                 {
                     y = &desired_output;
                 }
 
-                match self.layers[layer_id].kind {
+                match &self.layers[layer_id].kind {
                     LayerKind::output_layer =>  {
-                        self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= (2.0 * (neuron.n_value - y)) * 
-                        derivative_sigmoid(neuron.n_sum) * prev_activation;   
+                        self.layers[layer_id].neurons[neuron_index].weights[weight_index] -=  
+                        &self.layers[layer_id].neurons[neuron_index].dC_over_dA(*y) * 
+                        &self.layers[layer_id].neurons[neuron_index].dA_over_dZ() * prev_activation;  
 
-                        self.layers[layer_id].neurons[neuron_index].n_bias -= (2.0 * (neuron.n_value - y)) * 
-                        derivative_sigmoid(neuron.n_sum)
+                        self.layers[layer_id].neurons[neuron_index].n_bias -= 
+                        &self.layers[layer_id].neurons[neuron_index].dC_over_dA(*y) * 
+                        &self.layers[layer_id].neurons[neuron_index].dA_over_dZ() *
+                        &self.layers[layer_id].neurons[neuron_index].dZ_over_dB()
+                        
                     },
 
                     LayerKind::hidden_layer => {
-                        self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= ()
+                        let changeInActivation = {
+                            let mut sum = 0.0;
+                            for next_neuron_id in 0..self.layers[layer_id + 1].neurons.len() - 1 {
+                                sum +=
+                                &self.layers[layer_id + 1].neurons[next_neuron_id].weights[neuron_index] * 
+                                self.layers[layer_id + 1].neurons[next_neuron_id].dA_over_dZ() *
+                                self.layers[layer_id + 1].neurons[next_neuron_id].dC_over_dA(*y) //ASK JUN WHAT THE DESIRED OUTPUT IS
+                            }
+                            sum
+                        };
+
+
+
+                        self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= 1.0
                     }
                     _=> {}
                 }
