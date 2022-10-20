@@ -94,7 +94,7 @@ impl Network {
         mean::arithmetic(&cost_vector[..])
     }
 
-    pub fn change_weights(&mut self, desired_output_id:usize, desired_output:f64, layer_id:usize) 
+    pub fn backpropagate(&mut self, desired_output_id:usize, desired_output:f64, layer_id:usize) 
     {
         for neuron_index in 0..&self.layers[layer_id].neurons.len() - 1 
         {
@@ -117,8 +117,14 @@ impl Network {
                     LayerKind::output_layer =>  {
                         self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= (2.0 * (neuron.n_value - y)) * 
                         derivative_sigmoid(neuron.n_sum) * prev_activation;   
-                    }
 
+                        self.layers[layer_id].neurons[neuron_index].n_bias -= (2.0 * (neuron.n_value - y)) * 
+                        derivative_sigmoid(neuron.n_sum)
+                    },
+
+                    LayerKind::hidden_layer => {
+                        self.layers[layer_id].neurons[neuron_index].weights[weight_index] -= ()
+                    }
                     _=> {}
                 }
             }
