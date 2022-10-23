@@ -55,6 +55,7 @@ impl Layer {
         self.neurons[index].n_value = value;
     }
 
+
     fn get_neuron(&self, index:usize) -> &Neuron {
         &self.neurons[index]
     }
