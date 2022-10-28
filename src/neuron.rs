@@ -7,40 +7,64 @@ use crate::activation_functions::functions::derivative_sigmoid;
 
 
 pub struct Neuron {
-    pub n_id: usize,
-    pub n_value: f64,
+    pub activation: f64,
     pub weights: Vec<f64>,
-    pub n_bias: f64,
-    pub n_delta:i8,
-    pub n_sum: f64,
+    pub bias: f64,
+    pub sum: f64,
     pub error_sum: f64,
 }
 
 impl Neuron {
-    pub fn set_weights(&mut self, n:usize, weight:f64) {
-        self.weights[n] = weight;
+
+    pub fn new() -> Neuron{
+        Neuron {
+            activation: 0.0,
+            weights: Vec::new(), 
+            bias: 0.0, 
+            sum: 0.0, 
+            error_sum: 0.0
+        }
     }
 
-    pub fn update_weights(&mut self, n:usize, change:f64) {
-        self.weights[n] -= change;
-    }
-    pub fn set_value(&mut self, value:f64) {
-        self.n_value = value;
+    pub fn bias(&self) -> f64 {
+        self.bias
     }
 
-    pub fn dC_over_dA(&self, desired_output:f64) -> f64 {
-        return (2.0 * (self.n_value  - desired_output))
+    pub fn sum(&self) -> f64 {
+        self.sum
     }
 
-    pub fn dA_over_dZ(&self) -> f64{
-        derivative_sigmoid(self.n_sum)
+    pub fn err(&self) -> f64 {
+        self.error_sum
     }
 
-    pub fn dZ_over_dB(&self) -> f64 {
-        1.0
+    pub fn act(&self) -> f64 {
+        self.activation
     }
-
     
+    pub fn weight(&self, index:usize) -> f64 {
+        self.weights[index]
+    }
+
+    pub fn set_weight(&mut self, n:usize, value:f64) {
+        self.weights[n] = value;
+    }
+
+    pub fn set_bias(&self, value:f64) {
+        self.bias = value
+    }
+
+    pub fn set_act(&self, value:f64) {
+        self.activation = value
+    }
+
+    pub fn set_sum(&self, value:f64) {
+        self.sum = value
+    }
+
+    pub fn add_err(&mut self, value:f64) {
+        self.error_sum += value
+    }
 
 
     pub fn generate_random_weight(&mut self, index:usize) {

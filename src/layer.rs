@@ -9,52 +9,29 @@ pub enum LayerKind {
 }
 pub struct Layer {
     pub neurons: Vec<Neuron>,
-    pub kind: LayerKind
+    pub kind: LayerKind,
+    pub in_features: usize,
+    pub out_features: usize
 }
 
 impl Layer {
-    pub fn build(n:usize, kind:LayerKind) -> Layer
+    pub fn new(in_features:usize ,out_features:usize, kind:LayerKind) -> Layer
     {
         let neurons:Vec<Neuron> = Vec::new();
         let mut layer: Layer = Layer {
             neurons:neurons,
-            kind: kind
+            kind: kind,
+            in_features: in_features,
+            out_features: out_features
         };
-        (0..n-1).for_each(|i: usize| 
+        (0..out_features-1).for_each(|i: usize| 
         {
             layer.neurons.push(
-                Neuron {
-                    n_id: i,
-                    n_value : 0.0,
-                    weights : Vec::new(),
-                    n_bias : 0.0,
-                    n_delta : 0,
-                    n_sum : 0.0,
-                    error_sum : 0.0
-                }
+                Neuron::new()
             )
         });
         layer
     }
-
-    pub fn get_max_neuron(&self) -> &Neuron {
-        let mut max_neuron: &Neuron = &self.neurons[0];
-        for neuron_index in 1..&self.neurons.len() - 1 {
-            if self.neurons[neuron_index].n_value > max_neuron.n_value {
-                max_neuron = &self.neurons[neuron_index];
-            }
-        }
-        max_neuron
-    }
-
-    pub fn set_neuron(&mut self, neuron:Neuron, index:usize) {
-        self.neurons[index] = neuron;
-    }
-
-    pub fn set_neuron_val(&mut self, value:f64, index:usize) {
-        self.neurons[index].n_value = value;
-    }
-
 
     fn get_neuron(&self, index:usize) -> &Neuron {
         &self.neurons[index]

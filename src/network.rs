@@ -17,6 +17,13 @@ impl Network {
     pub fn len(&self) -> usize {
         self.layers.len()
     }
+
+
+    pub fn add_layer(&self, in_features:usize ,out_features:usize, kind:LayerKind) {
+        self.layers.push(Layer::new(in_features, out_features, kind))
+    }
+
+
     //initializes network
     pub fn initialize(&mut self){
         (0..self.len()-2).for_each(|layer_index: usize| 
@@ -31,7 +38,7 @@ impl Network {
         });   
     }
 
-    pub fn build(layer_sizes:Vec<usize>) -> Network {
+    pub fn new(layer_sizes:Vec<usize>) -> Network {
         let layers:Vec<Layer> = Vec::new();
         let mut network:Network = Network { layers: layers };
         for size_index in 0..layer_sizes.len() - 1
@@ -44,7 +51,7 @@ impl Network {
             };
 
             network.layers.push(
-                Layer::build(layer_sizes[size_index], kind)
+                Layer::new(layer_sizes[size_index - 1],layer_sizes[size_index], kind)
             )
         }
         network.initialize();
