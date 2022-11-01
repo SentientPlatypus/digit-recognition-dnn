@@ -61,13 +61,13 @@ impl Network {
     pub fn feedforward(&mut self) {
         for layer_index in 1..&self.layers.len()-1 {
             for neuron_index in 0..&self.layers[layer_index].neurons.len()-1 {
-                self.layers[layer_index].neurons[neuron_index].n_value = {
+                self.layers[layer_index].neurons[neuron_index].activation = {
                     let mut sum:f64 = 0.0;
                     for weight_index in 0..self.layers[layer_index].neurons[neuron_index].weights.len()-1 {
-                        sum += (self.layers[layer_index].neurons[neuron_index].weights[weight_index] * &self.layers[layer_index - 1].neurons[weight_index].n_value);
+                        sum += (self.layers[layer_index].neurons[neuron_index].weights[weight_index] * &self.layers[layer_index - 1].neurons[weight_index].activation);
                     }
-                    sum += self.layers[layer_index].neurons[neuron_index].n_bias;
-                    self.layers[layer_index].neurons[neuron_index].n_sum = sum;
+                    sum += self.layers[layer_index].neurons[neuron_index].bias();
+                    self.layers[layer_index].neurons[neuron_index].sum = sum;
                     sigmoid(sum)
                 }
             }
@@ -87,11 +87,11 @@ impl Network {
 
     pub fn get_cost_vector(&self, layer_id:usize, target_id:usize, desired_output:f64) -> Vec<f64> {
         let mut cost_vec:Vec<f64> = Vec::new();
-        for neuron in &self.layers[layer_id].neurons  {
-            if neuron.n_id == target_id {
-                cost_vec.push((desired_output - neuron.n_value).powf(2.0));
+        for neuron_id in 0..&self.layers[layer_id].neurons.len() - 1  {
+            if neuron_id == target_id {
+                cost_vec.push((desired_output - self.layers[layer_id].neurons[neuron_id].activation).powf(2.0));
             } else {
-                cost_vec.push((0.0 - neuron.n_value).powf(2.0));
+                cost_vec.push((0.0 - self.layers[layer_id].neurons[neuron_id].activation).powf(2.0));
             }
         }
         cost_vec
