@@ -27,20 +27,10 @@ impl Layer {
         (0..out_features-1).for_each(|i: usize| 
         {
             layer.neurons.push(
-                Neuron::new()
+                Neuron::new(i)
             )
         });
         layer
-    }
-
-    pub fn get_max_neuron(&self) -> &Neuron {
-        let mut max:Neuron = self.neurons[0];
-        for n_index in 1..self.neurons.len() - 1 {
-            if max.act() < self.neurons[n_index].act() {
-                max = self.neurons[n_index];
-            }
-        }
-        &max
     }
 
     fn get_neuron(&self, index:usize) -> &Neuron {

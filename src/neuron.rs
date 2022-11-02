@@ -7,6 +7,7 @@ use crate::activation_functions::functions::derivative_sigmoid;
 
 
 pub struct Neuron {
+    pub id:usize,
     pub activation: f64,
     pub weights: Vec<f64>,
     pub bias: f64,
@@ -16,14 +17,19 @@ pub struct Neuron {
 
 impl Neuron {
 
-    pub fn new() -> Neuron{
+    pub fn new(id:usize) -> Neuron{
         Neuron {
+            id:id,
             activation: 0.0,
             weights: Vec::new(), 
             bias: 0.0, 
             sum: 0.0, 
             error_sum: 0.0
         }
+    }
+
+    pub fn id(&self) -> usize {
+        self.id
     }
 
     pub fn bias(&self) -> f64 {
@@ -50,15 +56,15 @@ impl Neuron {
         self.weights[n] = value;
     }
 
-    pub fn set_bias(&self, value:f64) {
+    pub fn set_bias(&mut self, value:f64) {
         self.bias = value
     }
 
-    pub fn set_act(&self, value:f64) {
+    pub fn set_act(&mut self, value:f64) {
         self.activation = value
     }
 
-    pub fn set_sum(&self, value:f64) {
+    pub fn set_sum(&mut self, value:f64) {
         self.sum = value
     }
 
