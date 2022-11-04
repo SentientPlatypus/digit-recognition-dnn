@@ -23,7 +23,6 @@ impl Network {
         self.layers.push(Layer::new(in_features, out_features, kind))
     }
 
-
     //initializes network
     pub fn initialize(&mut self){
         (0..self.len()-2).for_each(|layer_index: usize| 
