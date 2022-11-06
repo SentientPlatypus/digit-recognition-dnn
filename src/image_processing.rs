@@ -1,7 +1,11 @@
 use image::{self, imageops::*, Pixel, Pixels, Luma};
-use std::error::Error;
-use csv::ReaderBuilder;
 
+use serde::Deserialize;
+
+use std::error::Error;
+use std::fs::File;
+use std::io::BufReader;
+use std::path::Path;
 
 pub fn convert_to_grayscale() -> Vec<u8> {
   let img = match image::open("num.jpeg")
@@ -33,12 +37,7 @@ struct data_set {
 }
 
 impl data_set {
-  pub fn generate(path:String) {
-    let mut rdr = Reader::from_path("foo.csv")?;
-    for result in rdr.records() {
-        let record = result?;
-        println!("{:?}", record);
-    }
+  pub fn generate() {
   }
 }
 
