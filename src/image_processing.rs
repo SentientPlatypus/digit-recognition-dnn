@@ -1,5 +1,6 @@
 use image::{self, imageops::*, Pixel, Pixels, Luma};
-
+use std::fs::File;
+use std::io::Read;
 use serde::Deserialize;
 
 use std::error::Error;
@@ -38,6 +39,10 @@ struct data_set {
 
 impl data_set {
   pub fn generate() {
+    let mut data = String::new();
+    let mut f = File::open("data/data.json").expect("Unable to open file");
+    f.read_to_string(&mut data).expect("Unable to read data");
+    println!("{}");
   }
 }
 
