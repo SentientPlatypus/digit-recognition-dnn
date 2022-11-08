@@ -2,9 +2,6 @@ use image::{self, imageops::*, Pixel, Pixels, Luma};
 use std::fs::File;
 use std::io::Read;
 use serde::Deserialize;
-
-use std::error::Error;
-use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
@@ -33,16 +30,21 @@ struct number_img {
   correct_value: u8
 }
 
-struct data_set {
+pub struct data_set {
   images: Vec<number_img>
 }
 
 impl data_set {
-  pub fn generate() {
+  pub fn generate(path:String) {
     let mut data = String::new();
-    let mut f = File::open("data/data.json").expect("Unable to open file");
+    let mut f = File::open(path).expect("Unable to open file");
     f.read_to_string(&mut data).expect("Unable to read data");
-    println!("{}");
+    
+    //DATA IS JSON STRING.
+
+    let data_json:serde_json::Value = serde_json::from_str(&data).expect("Failed to parse json");
+    print!("{}",data_json["data"][0])
+
   }
 }
 

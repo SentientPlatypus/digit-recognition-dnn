@@ -12,7 +12,7 @@ use crate::activation_functions::functions::{
 };
 
 fn main() {
-    image_processing::data_set::generate()
+    image_processing::data_set::generate(String::from("data/data.json"))
 }
 
 
