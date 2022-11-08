@@ -3,7 +3,7 @@ pub mod layer;
 pub mod neuron;
 pub mod activation_functions;
 pub mod image_processing;
-
+use image_processing::data_set;
 
 
 use crate::activation_functions::functions::{
@@ -12,7 +12,8 @@ use crate::activation_functions::functions::{
 };
 
 fn main() {
-    image_processing::data_set::generate(String::from("data/data.json"))
+    let my_dataset:data_set = data_set::generate(String::from("data/data.json"));
+    
 }
 
 
