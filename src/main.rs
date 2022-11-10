@@ -4,6 +4,8 @@ pub mod neuron;
 pub mod activation_functions;
 pub mod image_processing;
 use image_processing::data_set;
+use image_processing::number_img;
+use network::Network;
 
 
 use crate::activation_functions::functions::{
@@ -13,7 +15,11 @@ use crate::activation_functions::functions::{
 
 fn main() {
     let my_dataset:data_set = data_set::generate(String::from("data/data.json"));
+
+    let img:&number_img = &my_dataset.images[0];
     
+    let mut classification_network:Network = Network::new(vec![img.pixel_brightness.len(), 8, 8, 10]);
+    classification_network.set_inputs(&img.pixel_brightness)
 }
 
 

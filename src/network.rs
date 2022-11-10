@@ -88,7 +88,7 @@ impl Network {
         }
     }
 
-    pub fn set_inputs(&mut self, pixels:Vec<u8>) {
+    pub fn set_inputs(&mut self, pixels:&Vec<f64>) {
         let input_layer = &mut self.layers[0];
         for neuron_index in 0..input_layer.len() {
             input_layer.neurons[neuron_index].set_act(f64::from(pixels[neuron_index]));
