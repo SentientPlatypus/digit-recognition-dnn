@@ -41,7 +41,7 @@ def updateDatabase(newDictionary:dict, path:str = data_json_path):
 
 
 json_current = getDictionary()
-for index in range(len(train_x)):
+for index in range(len(train_x) - 39999):
     example = train_x[index]
     y = train_y[index]
     vector:np.ndarray = example.reshape((1,28 * 28))[0].tolist()

@@ -3,23 +3,21 @@ pub mod layer;
 pub mod neuron;
 pub mod activation_functions;
 pub mod image_processing;
-use image_processing::data_set;
-use image_processing::number_img;
+use image_processing::Dataset;
+use image_processing::NumberImg;
 use network::Network;
 
-
-use crate::activation_functions::functions::{
-    sigmoid,
-    relu
-};
-
 fn main() {
-    let my_dataset:data_set = data_set::generate(String::from("data/data.json"));
+    let my_dataset:Dataset = Dataset::generate_first(String::from("data/data.json"));
 
-    let img:&number_img = &my_dataset.images[0];
+    let img:&NumberImg = &my_dataset.images[0];
     
     let mut classification_network:Network = Network::new(vec![img.pixel_brightness.len(), 8, 8, 10]);
-    classification_network.set_inputs(&img.pixel_brightness)
+    classification_network.set_inputs(&img.pixel_brightness);
+
+    classification_network.feedforward();
+    println!("{:?}", classification_network.get_network_output());
+    println!("{:#?}", classification_network.layers.last().expect("failed to get last layer"));
 }
 
 

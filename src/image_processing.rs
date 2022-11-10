@@ -7,17 +7,17 @@ use serde::Deserialize;
 use std::io::BufReader;
 use std::path::Path;
 
-pub struct number_img {
+pub struct NumberImg {
   pub pixel_brightness:Vec<f64>,
   pub correct_value: i64
 }
 
-pub struct data_set {
-  pub images: Vec<number_img>
+pub struct Dataset {
+  pub images: Vec<NumberImg>
 }
 
-impl data_set {
-  pub fn generate(path:String) -> data_set{
+impl Dataset {
+  pub fn generate_full(path:String) -> Dataset{
     let mut data = String::new();
     let mut f = File::open(path).expect("Unable to open file");
     f.read_to_string(&mut data).expect("Unable to read data");
@@ -25,7 +25,7 @@ impl data_set {
     //DATA IS JSON STRING.
     type JsonMap = HashMap<String, serde_json::Value>;
     let data_json:HashMap<String, Vec<JsonMap>> = serde_json::from_str(&data).expect("Failed to parse json");
-    let mut img_vector:Vec<number_img> = Vec::new();
+    let mut img_vector:Vec<NumberImg> = Vec::new();
 
     for image_data in &data_json["data"] {
       let mut pixels:Vec<f64> = Vec::new();
@@ -33,14 +33,39 @@ impl data_set {
         pixels.push(pixel.as_f64().expect("failed to turn into f64"))
       }
       img_vector.push(
-        number_img { 
+        NumberImg { 
           pixel_brightness: pixels, 
           correct_value: image_data["y"].as_i64().expect("failed to turn into i64")
         }
       )
     }
     println!("SUCCESS ");
-    data_set { images:img_vector}
+    Dataset { images:img_vector}
+  }
+
+  pub fn generate_first(path:String) -> Dataset {
+    let mut data = String::new();
+    let mut f = File::open(path).expect("Unable to open file");
+    f.read_to_string(&mut data).expect("Unable to read data");
+    
+    //DATA IS JSON STRING.
+    type JsonMap = HashMap<String, serde_json::Value>;
+    let data_json:HashMap<String, Vec<JsonMap>> = serde_json::from_str(&data).expect("Failed to parse json");
+    let mut img_vector:Vec<NumberImg> = Vec::new();
+    let img_data = &data_json["data"][0];
+    let mut pixels:Vec<f64> = Vec::new();
+    for pixel in img_data["vector"].as_array().expect("failed to parse as array") {
+      pixels.push(pixel.as_f64().expect("failed to turn into f64"))
+    }
+    img_vector.push(
+      NumberImg { 
+        pixel_brightness: pixels, 
+        correct_value: img_data["y"].as_i64().expect("failed to turn into i64")
+      }
+    );
+
+    Dataset { images: img_vector }
+
   }
 }
 

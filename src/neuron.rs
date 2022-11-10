@@ -1,5 +1,5 @@
 use rand::Rng;
-
+use std::fmt;
 use crate::activation_functions::functions::derivative_sigmoid;
 
 #[derive(Default)]
@@ -13,6 +13,19 @@ pub struct Neuron {
     pub bias: f64,
     pub sum: f64,
     pub error_sum: f64,
+}
+
+
+impl fmt::Debug for Neuron {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Neuron")
+         .field("id", &self.id)
+         .field("activation", &self.activation)
+         .field("sum", &self.sum)
+         .field("bias", &self.bias)
+         .field("error_sum", &self.error_sum)
+         .finish()
+    }
 }
 
 impl Neuron {

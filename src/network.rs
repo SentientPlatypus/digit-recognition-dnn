@@ -8,7 +8,7 @@ use::math::mean;
 
 
 pub struct Network {
-    layers: Vec<Layer>,
+    pub layers: Vec<Layer>,
 }
 
 
@@ -45,19 +45,24 @@ impl Network {
             let last_index = layer_sizes.len() - 1;
             let kind:LayerKind = match size_index {
                 0 => LayerKind::hidden_layer,
-                last_index=> LayerKind::output_layer,
+                _last_index=> LayerKind::output_layer,
                 _=> LayerKind::hidden_layer
             };
 
+            let mut prev_index:usize = 0 as usize;
+            if size_index != 0 {
+                prev_index = size_index - 1;
+            } 
+
             network.layers.push(
-                Layer::new(layer_sizes[size_index - 1],layer_sizes[size_index], kind)
+                Layer::new(layer_sizes[prev_index],layer_sizes[size_index], kind)
             )
         }
         network.initialize();
         network
     }
 
-    pub fn feedforward(&mut self) -> usize {
+    pub fn feedforward(&mut self) {
         for layer_index in 1..&self.layers.len()-1 {
             for neuron_index in 0..&self.layers[layer_index].neurons.len()-1 {
                 self.layers[layer_index].neurons[neuron_index].activation = {
@@ -72,6 +77,11 @@ impl Network {
                 }
             }
         }
+    }
+
+
+
+    pub fn get_network_output(&self) -> i64 {
         match self.layers.last() {
             Some(lyr) => {
                 let mut max_value:&Neuron = &lyr.neurons[0];
@@ -80,7 +90,7 @@ impl Network {
                         max_value = &lyr.neurons[neuron_index];
                     }
                 }
-                return max_value.id();
+                return max_value.id() as i64;
             }
             None => {
                 panic!("failed to retrieve last layer")
