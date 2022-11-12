@@ -89,7 +89,7 @@ impl Network {
         match self.layers.last() {
             Some(lyr) => {
                 let mut max_value:&Neuron = &lyr.neurons[0];
-                for neuron_index in 1..lyr.neurons.len() - 1 {
+                for neuron_index in 1..lyr.neurons.len(){
                     if lyr.neurons[neuron_index].act() > max_value.act() {
                         max_value = &lyr.neurons[neuron_index];
                     }

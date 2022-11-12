@@ -12,7 +12,9 @@ fn main() {
 
     let img:&NumberImg = &my_dataset.images[0];
     
-    let mut classification_network:Network = Network::new(vec![img.pixel_brightness.len(), 8, 8, 10]);
+    let mut classification_network:Network = Network::new(
+        vec![img.pixel_brightness.len(), 8, 8, 10]
+    );
     classification_network.set_inputs(&img.pixel_brightness);
 
     classification_network.feedforward();
