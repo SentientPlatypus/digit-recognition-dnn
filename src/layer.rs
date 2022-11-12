@@ -33,7 +33,7 @@ impl fmt::Debug for Layer {
 }
 
 impl Layer {
-    pub fn new(in_features:usize ,out_features:usize, kind:LayerKind) -> Layer
+    pub fn new(in_features:usize ,out_features:usize, size:usize, kind:LayerKind) -> Layer
     {
         let neurons:Vec<Neuron> = Vec::new();
         let mut layer: Layer = Layer {
@@ -42,7 +42,7 @@ impl Layer {
             in_features: in_features,
             out_features: out_features
         };
-        (0..out_features-1).for_each(|i: usize| 
+        (0..size).for_each(|i: usize| 
         {
             layer.neurons.push(
                 Neuron::new(i)

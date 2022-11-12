@@ -24,6 +24,7 @@ impl fmt::Debug for Neuron {
          .field("sum", &self.sum)
          .field("bias", &self.bias)
          .field("error_sum", &self.error_sum)
+         .field("Weights", &self.weights)
          .finish()
     }
 }
