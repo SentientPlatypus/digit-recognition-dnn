@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use serde_json::Value;
 use core::num;
 use std::collections::HashMap;
@@ -27,11 +28,14 @@ impl Dataset {
     let data_json:HashMap<String, Vec<JsonMap>> = serde_json::from_str(&data).expect("Failed to parse json");
     let mut img_vector:Vec<NumberImg> = Vec::new();
 
-    for image_data in &data_json["data"] {
-      let mut pixels:Vec<f64> = Vec::new();
-      for pixel in image_data["vector"].as_array().expect("failed to parse as array") {
-        pixels.push(pixel.as_f64().expect("failed to turn into f64"))
-      }
+    for image_data in &data_json["data"] {    
+      let pixels:Vec<f64> = image_data["vector"]
+        .as_array()
+        .expect("failed to parse as array")
+        .into_iter()
+        .map(|x| x.as_f64().expect("failed to turn into f64"))
+        .collect_vec();
+        
       img_vector.push(
         NumberImg { 
           pixel_brightness: pixels, 
@@ -47,16 +51,22 @@ impl Dataset {
     let mut data = String::new();
     let mut f = File::open(path).expect("Unable to open file");
     f.read_to_string(&mut data).expect("Unable to read data");
-    
     //DATA IS JSON STRING.
     type JsonMap = HashMap<String, serde_json::Value>;
     let data_json:HashMap<String, Vec<JsonMap>> = serde_json::from_str(&data).expect("Failed to parse json");
+
     let mut img_vector:Vec<NumberImg> = Vec::new();
+
     let img_data = &data_json["data"][0];
-    let mut pixels:Vec<f64> = Vec::new();
-    for pixel in img_data["vector"].as_array().expect("failed to parse as array") {
-      pixels.push(pixel.as_f64().expect("failed to turn into f64"))
-    }
+
+    let pixels:Vec<f64> = img_data["vector"]
+      .as_array()
+      .expect("failed to parse as array")
+      .into_iter()
+      .map(|x| x.as_f64().expect("failed to turn into f64"))
+      .collect_vec();
+
+
     img_vector.push(
       NumberImg { 
         pixel_brightness: pixels, 
