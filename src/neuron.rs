@@ -1,6 +1,6 @@
 use rand::Rng;
 use std::fmt;
-use crate::activation_functions::functions::derivative_sigmoid;
+
 
 #[derive(Default)]
 

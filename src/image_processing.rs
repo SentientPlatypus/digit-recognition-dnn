@@ -1,12 +1,9 @@
 use itertools::Itertools;
 use serde_json::Value;
-use core::num;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
-use serde::Deserialize;
-use std::io::BufReader;
-use std::path::Path;
+
 
 pub struct NumberImg {
   pub pixel_brightness:Vec<f64>,
@@ -35,7 +32,7 @@ impl Dataset {
         .into_iter()
         .map(|x| x.as_f64().expect("failed to turn into f64"))
         .collect_vec();
-        
+
       img_vector.push(
         NumberImg { 
           pixel_brightness: pixels, 
@@ -63,7 +60,7 @@ impl Dataset {
       .as_array()
       .expect("failed to parse as array")
       .into_iter()
-      .map(|x| x.as_f64().expect("failed to turn into f64"))
+      .map(|x:&Value| x.as_f64().expect("failed to turn into f64"))
       .collect_vec();
 
 

@@ -1,10 +1,7 @@
-use crate::{layer::{Layer, self, LayerKind}, neuron::{Neuron, self}};
+use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::NumberImg};
 use crate::activation_functions::functions::{
-    sigmoid,
-    relu,
-    derivative_sigmoid
+    sigmoid
 };
-use::math::mean;
 
 
 pub struct Network {
@@ -14,41 +11,21 @@ pub struct Network {
 
 
 impl Network {
+
     pub fn len(&self) -> usize {
         self.layers.len()
     }
 
-
-    pub fn add_layer(&mut self, in_features:usize ,out_features:usize,size:usize, kind:LayerKind) {
-        self.layers.push(Layer::new(in_features, out_features, size, kind))
-    }
-
-    //initializes network
-    pub fn initialize(&mut self){
-        (1..self.layers.len()).for_each(|layer_index: usize| 
-        {
-            (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
-            {
-                for count in 0..self.layers[layer_index].in_features{
-                    self.layers[layer_index].neurons[neuron_index].generate_random_weight(count)
-                }
-            });
-        });   
-    }
-
-    //[784, 8, 8, 10]
     pub fn new(layer_sizes:Vec<usize>) -> Network {
-        let mut layers:Vec<Layer> = Vec::new();
-
-        let mut network:Network = Network { layers: layers };
+        let mut network:Network = Network { layers: Vec::new() };
         for size_index in 0..layer_sizes.len()
         {
             let last_index = layer_sizes.len() - 1;
 
             let kind:LayerKind = match size_index {
-                0 => LayerKind::hidden_layer,
-                _last_index=> LayerKind::output_layer,
-                _=> LayerKind::hidden_layer
+                0 => LayerKind::InputLayer,
+                last_index=> LayerKind::OutputLayer,
+                _=> LayerKind::HiddenLayer
             };
 
             let mut in_features:usize = 0 as usize;
@@ -63,6 +40,30 @@ impl Network {
         }
         network.initialize();
         network
+    }
+
+    pub fn add_layer(&mut self, in_features:usize ,out_features:usize,size:usize, kind:LayerKind) {
+        self.layers.push(Layer::new(in_features, out_features, size, kind))
+    }
+
+    pub fn set_inputs(&mut self, pixels:&Vec<f64>) {
+        let input_layer = &mut self.layers[0];
+        for neuron_index in 0..input_layer.len() {
+            input_layer.neurons[neuron_index].set_act(f64::from(pixels[neuron_index]));
+        }
+    }
+
+    //initializes network
+    pub fn initialize(&mut self){
+        (1..self.layers.len()).for_each(|layer_index: usize| 
+        {
+            (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
+            {
+                for count in 0..self.layers[layer_index].in_features{
+                    self.layers[layer_index].neurons[neuron_index].generate_random_weight(count)
+                }
+            });
+        });   
     }
 
     pub fn feedforward(&mut self) {
@@ -83,13 +84,25 @@ impl Network {
         }
     }
 
+    pub fn stochastic_gradient_descent(&mut self, inputs:&NumberImg, desired_y:i64, learning_rate:f64, regularization_c:f64) {
+        self.set_inputs(&inputs.pixel_brightness);
+        self.feedforward();
+
+        let predicted_output:i64 = self.get_network_output();
+        
+        for lyr_index in (0..self.layers.len()).rev() {
+            let partial_gradient:f64 = 0.0;
+            let gradient:f64 = 0.0;
+        }
+    }
+
 
 
     pub fn get_network_output(&self) -> i64 {
         match self.layers.last() {
             Some(lyr) => {
                 let mut max_value:&Neuron = &lyr.neurons[0];
-                for neuron_index in 1..lyr.neurons.len(){
+                for neuron_index in 1..lyr.neurons.len() {
                     if lyr.neurons[neuron_index].act() > max_value.act() {
                         max_value = &lyr.neurons[neuron_index];
                     }
@@ -102,12 +115,6 @@ impl Network {
         }
     }
 
-    pub fn set_inputs(&mut self, pixels:&Vec<f64>) {
-        // println!("{:#?}", pixels);
-        let input_layer = &mut self.layers[0];
-        for neuron_index in 0..input_layer.len() {
-            input_layer.neurons[neuron_index].set_act(f64::from(pixels[neuron_index]));
-        }
-    }
+
 }
 

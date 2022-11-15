@@ -1,4 +1,3 @@
-use std::cmp;
 
 
 pub fn sigmoid(v: f64) -> f64 {

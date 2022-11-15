@@ -1,11 +1,11 @@
-use crate::neuron::{Neuron, self};
-use len_trait::{Len, Empty};
+use crate::neuron::{Neuron};
 use std::fmt;
 
+#[derive(Debug)]
 pub enum LayerKind {
-    input_layer,
-    output_layer,
-    hidden_layer
+    InputLayer,
+    OutputLayer,
+    HiddenLayer
 }
 
 // impl fmt::Debug for LayerKind {
@@ -25,7 +25,7 @@ impl fmt::Debug for Layer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Layer")
          .field("neurons", &self.neurons)
-        //  .field("kind", &self.kind)
+         .field("kind", &self.kind)
          .field("in_features", &self.in_features)
          .field("out_features", &self.out_features)
          .finish()
