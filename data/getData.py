@@ -52,11 +52,8 @@ for index in range(len(train_x) - 39999):
         "y":y
     }
     json_current["data"].append(img_ob)
-    # json_object = json.dumps(img_ob, indent=4, cls=NpEncoder)
-    # with open("W:\Code\Machine Learning\digit-recognition-dnn\data\data.json", "a") as outfile:
-    #     outfile.write(json_object)
-    # print(vector)
-    # print(y)
-    # plt.imshow(example.reshape((28, 28)), cmap=cm.Greys_r)
-    # plt.show()
-updateDatabase(json_current)
+    print(vector)
+    print(y)
+    plt.imshow(example.reshape((28, 28)), cmap=cm.Greys_r)
+    plt.show()
+# updateDatabase(json_current)

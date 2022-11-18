@@ -7,7 +7,20 @@ use std::io::Read;
 
 pub struct NumberImg {
   pub pixel_brightness:Vec<f64>,
-  pub correct_value: i64
+  pub correct_value: i64,
+  pub true_vec: Vec<f64>
+}
+
+fn generate_true_vec(id:usize) -> Vec<f64> {
+  let mut output:Vec<f64> = Vec::new();
+  for n in (0 as usize..=9) {
+    if n == id {
+      output.push(1.0);
+    } else {
+        output.push(0.0);
+    }
+  }
+  output
 }
 
 pub struct Dataset {
@@ -36,7 +49,8 @@ impl Dataset {
       img_vector.push(
         NumberImg { 
           pixel_brightness: pixels, 
-          correct_value: image_data["y"].as_i64().expect("failed to turn into i64")
+          correct_value: image_data["y"].as_i64().expect("failed to turn into i64"),
+          true_vec: generate_true_vec(image_data["y"].as_i64().expect("failed to turn into i64") as usize)
         }
       )
     }
@@ -67,7 +81,8 @@ impl Dataset {
     img_vector.push(
       NumberImg { 
         pixel_brightness: pixels, 
-        correct_value: img_data["y"].as_i64().expect("failed to turn into i64")
+        correct_value: img_data["y"].as_i64().expect("failed to turn into i64"),
+        true_vec: generate_true_vec(img_data["y"].as_i64().expect("failed to turn into i64") as usize)
       }
     );
 

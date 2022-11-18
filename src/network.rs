@@ -1,4 +1,6 @@
-use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::NumberImg};
+use itertools::Itertools;
+
+use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}};
 use crate::activation_functions::functions::{
     sigmoid
 };
@@ -28,8 +30,8 @@ impl Network {
                 _=> LayerKind::HiddenLayer
             };
 
-            let mut in_features:usize = 0 as usize;
-            let mut out_features:usize = 0 as usize;
+            let mut in_features:usize = 1 as usize;
+            let mut out_features:usize = 1 as usize;
             if size_index != 0 {
                 in_features = layer_sizes[size_index - 1];
             } 
@@ -84,19 +86,86 @@ impl Network {
         }
     }
 
-    pub fn stochastic_gradient_descent(&mut self, inputs:&NumberImg, desired_y:i64, learning_rate:f64, regularization_c:f64) {
+    pub fn get_output_vec(&self) -> Vec<f64> {
+        let mut output:Vec<f64> = Vec::new();
+        for neuron in &self.layers.last().expect("Failed to get output layer").neurons {
+            output.push(neuron.act())
+        }
+        output
+    }
+
+    
+
+    pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64) {
         self.set_inputs(&inputs.pixel_brightness);
         self.feedforward();
+
+        let actual_y:i64 = inputs.correct_value;
 
         let predicted_output:i64 = self.get_network_output();
         
         for lyr_index in (0..self.layers.len()).rev() {
-            let partial_gradient:f64 = 0.0;
-            let gradient:f64 = 0.0;
+
+            let mut partial_gradient:f64 = 0.0;
+            let mut gradient:f64 = 0.0;
+
+            for out_index in (0..self.layers[lyr_index].out_features()) {
+                println!("{}", out_index);
+                //Check if we are iterating through the last layer
+                //DE/Db = De/Da * Da/Ds * ds/ db
+                //ERROR IS THAT WE HAVE MORE OUTFEATURES THAN NEURONS
+                if lyr_index == self.layers.len() - 1  {
+                    partial_gradient = -2.00 * (actual_y - predicted_output) as f64
+                } else {
+                    // MAYBE lyr_index + 1??
+                    partial_gradient = self.layers[lyr_index ].neurons[out_index].err()
+                         * sigmoid(self.layers[lyr_index].neurons[out_index].sum())
+                }
+
+                //updating bias by this partial gradient
+                let new_bias:f64 = self.layers[lyr_index].neurons[out_index].bias() - learning_rate * partial_gradient;
+
+                self.layers[lyr_index].neurons[out_index].set_bias(
+                    new_bias
+                );
+
+                for i in (0..self.layers[lyr_index].in_features() - 1) {
+                    //Check if we are at the input layer
+                    if lyr_index == 0 {
+                        gradient = partial_gradient * self.layers[lyr_index].neurons[out_index].act();
+                    } else {
+                        //set gradient to the product of partial gradient and the previous layer's neuron's activation
+                        gradient = partial_gradient * self.layers[lyr_index - 1].neurons[i].act();
+                        let error:f64 = partial_gradient * self.layers[lyr_index].neurons[out_index].weight(i);
+                        self.layers[lyr_index - 1].neurons[i].add_err(
+                            error
+                        );
+                    }
+                    gradient += regularization_c * self.layers[lyr_index].neurons[out_index].weight(i);
+                    let new_weight:f64 = self.layers[lyr_index].neurons[out_index].weight(i) - learning_rate * gradient;
+                    self.layers[lyr_index].neurons[out_index].set_weight(i, new_weight);
+                }
+            }
+        println!("Finished layer {}", lyr_index);
         }
     }
 
+    pub fn sgd(&mut self, set:&Dataset, learning_rate:f64, epochs:usize) {
+        for img_i in (0..=epochs) {
+            self.set_inputs(
+                &set.images[img_i].pixel_brightness
+            );
 
+            self.feedforward();
+
+            self.backpropagate(
+                &set.images[img_i], 
+                learning_rate, 
+                1.0
+            );
+            println!("Epoch {} complete", epochs);
+        }
+    }
 
     pub fn get_network_output(&self) -> i64 {
         match self.layers.last() {

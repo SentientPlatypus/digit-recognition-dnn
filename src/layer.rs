@@ -55,6 +55,16 @@ impl Layer {
         &self.neurons[index]
     }
 
+    pub fn out_features(&self) -> usize{
+        self.out_features
+    }
+
+    pub fn in_features(&self) ->usize {
+        self.in_features
+    }
+
+
+
     pub fn len(&self) -> usize {
         self.neurons.len()
     }

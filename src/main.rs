@@ -8,7 +8,7 @@ use image_processing::NumberImg;
 use network::Network;
 
 fn main() {
-    let my_dataset:Dataset = Dataset::generate_first(String::from("data/data.json"));
+    let my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
 
     let img:&NumberImg = &my_dataset.images[0];
 
@@ -19,7 +19,18 @@ fn main() {
 
     classification_network.feedforward();
     
+    // println!("{:#?}", classification_network.layers.last().expect("failed to get last layer"));
+    println!("{:#?}", classification_network.layers[2]);
+    println!("predicted output: {:?}", classification_network.get_network_output());
+
+    classification_network.backpropagate(
+        img, 
+        0.001, 
+        1.0
+    );
+
     println!("{:#?}", classification_network.layers.last().expect("failed to get last layer"));
     println!("predicted output: {:?}", classification_network.get_network_output());
+
 }
 
