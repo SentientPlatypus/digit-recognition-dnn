@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}};
+use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::functions::derivative_sigmoid};
 use crate::activation_functions::functions::{
     sigmoid
 };
@@ -8,6 +8,7 @@ use crate::activation_functions::functions::{
 
 pub struct Network {
     pub layers: Vec<Layer>,
+    pub cost:f64
 }
 
 
@@ -19,7 +20,7 @@ impl Network {
     }
 
     pub fn new(layer_sizes:Vec<usize>) -> Network {
-        let mut network:Network = Network { layers: Vec::new() };
+        let mut network:Network = Network { layers: Vec::new(), cost:0.0 };
         for size_index in 0..layer_sizes.len()
         {
             let last_index = layer_sizes.len() - 1;
@@ -94,7 +95,18 @@ impl Network {
         output
     }
 
-    
+    fn generate_cost(&mut self, actual:i64) {
+        let mut err:f64 = 0.0;
+        let outputs:Vec<f64> = self.get_output_vec();
+        for r in 0..outputs.len() {
+            if r == actual as usize {
+                err += (1.0 - outputs[r]).powf(2.0);
+            } else {
+                err += (0.0 - outputs[r]).powf(2.0);
+            }
+        }
+        self.cost = err;
+    }
 
     pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64) {
         self.set_inputs(&inputs.pixel_brightness);
@@ -103,14 +115,18 @@ impl Network {
         let actual_y:i64 = inputs.correct_value;
 
         let predicted_output:i64 = self.get_network_output();
+
+
+        self.generate_cost(actual_y);
+
+
         
         for lyr_index in (0..self.layers.len()).rev() {
 
             let mut partial_gradient:f64 = 0.0;
             let mut gradient:f64 = 0.0;
 
-            for out_index in (0..self.layers[lyr_index].out_features()) {
-                println!("{}", out_index);
+            for n_index in (0..self.layers[lyr_index].len()) {
                 //Check if we are iterating through the last layer
                 //DE/Db = De/Da * Da/Ds * ds/ db
                 //ERROR IS THAT WE HAVE MORE OUTFEATURES THAN NEURONS
@@ -118,52 +134,61 @@ impl Network {
                     partial_gradient = -2.00 * (actual_y - predicted_output) as f64
                 } else {
                     // MAYBE lyr_index + 1??
-                    partial_gradient = self.layers[lyr_index ].neurons[out_index].err()
-                         * sigmoid(self.layers[lyr_index].neurons[out_index].sum())
+                    partial_gradient = self.layers[lyr_index].neurons[n_index].err()
+                         * derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum())
                 }
 
                 //updating bias by this partial gradient
-                let new_bias:f64 = self.layers[lyr_index].neurons[out_index].bias() - learning_rate * partial_gradient;
+                let new_bias:f64 = self.layers[lyr_index].neurons[n_index].bias() - learning_rate * partial_gradient;
 
-                self.layers[lyr_index].neurons[out_index].set_bias(
+                self.layers[lyr_index].neurons[n_index].set_bias(
                     new_bias
                 );
 
-                for i in (0..self.layers[lyr_index].in_features() - 1) {
+                for in_index in (0..self.layers[lyr_index].in_features() - 1) {
                     //Check if we are at the input layer
                     if lyr_index == 0 {
-                        gradient = partial_gradient * self.layers[lyr_index].neurons[out_index].act();
+                        gradient = partial_gradient * self.layers[lyr_index].neurons[n_index].act();
                     } else {
                         //set gradient to the product of partial gradient and the previous layer's neuron's activation
-                        gradient = partial_gradient * self.layers[lyr_index - 1].neurons[i].act();
-                        let error:f64 = partial_gradient * self.layers[lyr_index].neurons[out_index].weight(i);
-                        self.layers[lyr_index - 1].neurons[i].add_err(
+                        gradient = partial_gradient * self.layers[lyr_index - 1].neurons[in_index].act();
+
+                        let error:f64 = partial_gradient * self.layers[lyr_index].neurons[n_index].weight(in_index);
+                        
+                        self.layers[lyr_index - 1].neurons[in_index].add_err(
                             error
                         );
                     }
-                    gradient += regularization_c * self.layers[lyr_index].neurons[out_index].weight(i);
-                    let new_weight:f64 = self.layers[lyr_index].neurons[out_index].weight(i) - learning_rate * gradient;
-                    self.layers[lyr_index].neurons[out_index].set_weight(i, new_weight);
+                    gradient += regularization_c * self.layers[lyr_index].neurons[n_index].weight(in_index);
+                    let new_weight:f64 = self.layers[lyr_index].neurons[n_index].weight(in_index) - learning_rate * gradient;
+                    self.layers[lyr_index].neurons[n_index].set_weight(in_index, new_weight);
                 }
             }
-        println!("Finished layer {}", lyr_index);
         }
     }
 
-    pub fn sgd(&mut self, set:&Dataset, learning_rate:f64, epochs:usize) {
-        for img_i in (0..=epochs) {
+    pub fn sgd(&mut self, set:&Dataset, learning_rate:f64, epochs:usize, regularization_c:f64) {
+        for img_i in (0..epochs) {
             self.set_inputs(
                 &set.images[img_i].pixel_brightness
             );
 
             self.feedforward();
 
+            self.generate_cost(set.images[img_i].correct_value);
+
             self.backpropagate(
                 &set.images[img_i], 
                 learning_rate, 
-                1.0
+                regularization_c
             );
-            println!("Epoch {} complete", epochs);
+            println!(
+                "Epoch {} complete. Cost:{}, Predicted:{}, Actual:{}", 
+                img_i + 1, 
+                self.cost(),
+                self.get_network_output(),
+                &set.images[img_i].correct_value
+            );
         }
     }
 
@@ -182,6 +207,10 @@ impl Network {
                 panic!("failed to retrieve last layer")
             }
         }
+    }
+
+    pub fn cost(&self) -> f64 {
+        self.cost
     }
 
 

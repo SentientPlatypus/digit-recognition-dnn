@@ -9,28 +9,18 @@ use network::Network;
 
 fn main() {
     let my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
-
     let img:&NumberImg = &my_dataset.images[0];
 
     let mut classification_network:Network = Network::new(
         vec![img.pixel_brightness.len(), 8, 8, 10]
     );
-    classification_network.set_inputs(&img.pixel_brightness);
-
-    classification_network.feedforward();
     
-    // println!("{:#?}", classification_network.layers.last().expect("failed to get last layer"));
-    println!("{:#?}", classification_network.layers[2]);
-    println!("predicted output: {:?}", classification_network.get_network_output());
-
-    classification_network.backpropagate(
-        img, 
-        0.001, 
-        1.0
+    classification_network.sgd(
+        &my_dataset, 
+        0.0001, 
+        20,
+        0.1
     );
-
-    println!("{:#?}", classification_network.layers.last().expect("failed to get last layer"));
-    println!("predicted output: {:?}", classification_network.get_network_output());
 
 }
 
