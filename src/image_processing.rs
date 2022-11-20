@@ -28,6 +28,8 @@ pub struct Dataset {
 }
 
 impl Dataset {
+
+  ///Returns a dataset with ALL the images
   pub fn generate_full(path:String) -> Dataset{
     let mut data = String::new();
     let mut f = File::open(path).expect("Unable to open file");
@@ -58,6 +60,7 @@ impl Dataset {
     Dataset { images:img_vector}
   }
 
+  ///Creates a Dataset of only the first image in the json file
   pub fn generate_first(path:String) -> Dataset {
     let mut data = String::new();
     let mut f = File::open(path).expect("Unable to open file");
@@ -88,6 +91,13 @@ impl Dataset {
 
     Dataset { images: img_vector }
 
+  }
+
+
+  /// Retains only the images with a correct_value of the numbers in to_retain
+  /// 
+  pub fn filter_by_output(&mut self, to_retain:Vec<i64>) {
+    self.images.retain(|x| to_retain.contains(&x.correct_value))
   }
 }
 

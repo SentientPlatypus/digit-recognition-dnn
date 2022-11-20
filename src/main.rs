@@ -8,12 +8,17 @@ use image_processing::NumberImg;
 use network::Network;
 
 fn main() {
-    let my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
-    let img:&NumberImg = &my_dataset.images[0];
+    let mut my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
+    my_dataset.filter_by_output(vec![0, 1]);
+
 
     let mut classification_network:Network = Network::new(
-        vec![img.pixel_brightness.len(), 8, 8, 10]
+        vec![784, 684, 584, 484, 392, 1],
+        true
     );
+
+
+    println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
     
     classification_network.sgd(
         &my_dataset, 

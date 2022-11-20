@@ -8,7 +8,8 @@ use crate::activation_functions::functions::{
 
 pub struct Network {
     pub layers: Vec<Layer>,
-    pub cost:f64
+    pub cost:f64,
+    pub binary_output:bool
 }
 
 
@@ -19,8 +20,8 @@ impl Network {
         self.layers.len()
     }
 
-    pub fn new(layer_sizes:Vec<usize>) -> Network {
-        let mut network:Network = Network { layers: Vec::new(), cost:0.0 };
+    pub fn new(layer_sizes:Vec<usize>, binary_output:bool) -> Network {
+        let mut network:Network = Network { layers: Vec::new(), cost:0.0, binary_output: binary_output };
         for size_index in 0..layer_sizes.len()
         {
             let last_index = layer_sizes.len() - 1;
@@ -98,42 +99,45 @@ impl Network {
     fn generate_cost(&mut self, actual:i64) {
         let mut err:f64 = 0.0;
         let outputs:Vec<f64> = self.get_output_vec();
-        for r in 0..outputs.len() {
-            if r == actual as usize {
-                err += (1.0 - outputs[r]).powf(2.0);
-            } else {
-                err += (0.0 - outputs[r]).powf(2.0);
+        if !self.binary_output {
+            for r in 0..outputs.len() {
+                if r == actual as usize {
+                    err += (1.0 - outputs[r]).powf(2.0);
+                } else {
+                    err += (0.0 - outputs[r]).powf(2.0);
+                }
             }
+        } else {
+            err  = (actual as f64 - 
+                self.layers.last()
+                    .expect("Failed to get last layer")
+                    .neurons.last()
+                    .expect("failed to get last neuron")
+                    .act()
+            ).powf(2.0);
         }
         self.cost = err;
     }
 
-    pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64) {
+    pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, ) {
+
         self.set_inputs(&inputs.pixel_brightness);
         self.feedforward();
 
         let actual_y:i64 = inputs.correct_value;
-
         let predicted_output:i64 = self.get_network_output();
-
-
         self.generate_cost(actual_y);
 
-
-        
         for lyr_index in (0..self.layers.len()).rev() {
 
             let mut partial_gradient:f64 = 0.0;
             let mut gradient:f64 = 0.0;
 
-            for n_index in (0..self.layers[lyr_index].len()) {
+            for n_index in 0..self.layers[lyr_index].len() {
                 //Check if we are iterating through the last layer
-                //DE/Db = De/Da * Da/Ds * ds/ db
-                //ERROR IS THAT WE HAVE MORE OUTFEATURES THAN NEURONS
                 if lyr_index == self.layers.len() - 1  {
                     partial_gradient = -2.00 * (actual_y - predicted_output) as f64
                 } else {
-                    // MAYBE lyr_index + 1??
                     partial_gradient = self.layers[lyr_index].neurons[n_index].err()
                          * derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum())
                 }
@@ -145,7 +149,7 @@ impl Network {
                     new_bias
                 );
 
-                for in_index in (0..self.layers[lyr_index].in_features() - 1) {
+                for in_index in 0..self.layers[lyr_index].in_features() - 1 {
                     //Check if we are at the input layer
                     if lyr_index == 0 {
                         gradient = partial_gradient * self.layers[lyr_index].neurons[n_index].act();
@@ -160,6 +164,7 @@ impl Network {
                         );
                     }
                     gradient += regularization_c * self.layers[lyr_index].neurons[n_index].weight(in_index);
+                    
                     let new_weight:f64 = self.layers[lyr_index].neurons[n_index].weight(in_index) - learning_rate * gradient;
                     self.layers[lyr_index].neurons[n_index].set_weight(in_index, new_weight);
                 }
@@ -168,7 +173,7 @@ impl Network {
     }
 
     pub fn sgd(&mut self, set:&Dataset, learning_rate:f64, epochs:usize, regularization_c:f64) {
-        for img_i in (0..epochs) {
+        for img_i in 0..epochs {
             self.set_inputs(
                 &set.images[img_i].pixel_brightness
             );
@@ -182,12 +187,28 @@ impl Network {
                 learning_rate, 
                 regularization_c
             );
+
+            let mut output_activation: f64;
+
+            if self.binary_output {
+                output_activation = self.layers.last()
+                .expect("Failed to get last layer")
+                .neurons.last()
+                .expect("failed to get last neuron")
+                .act()
+            } else {
+                output_activation = self.layers.last()
+                .expect("Failed to get last layer")
+                .neurons[self.get_network_output() as usize]
+                .act();
+            }
             println!(
-                "Epoch {} complete. Cost:{}, Predicted:{}, Actual:{}", 
+                "Epoch {} complete. Cost:{}, Predicted:{}, Actual:{}, Output activation:{}", 
                 img_i + 1, 
                 self.cost(),
                 self.get_network_output(),
-                &set.images[img_i].correct_value
+                &set.images[img_i].correct_value,
+                output_activation,
             );
         }
     }
@@ -195,13 +216,18 @@ impl Network {
     pub fn get_network_output(&self) -> i64 {
         match self.layers.last() {
             Some(lyr) => {
-                let mut max_value:&Neuron = &lyr.neurons[0];
-                for neuron_index in 1..lyr.neurons.len() {
-                    if lyr.neurons[neuron_index].act() > max_value.act() {
-                        max_value = &lyr.neurons[neuron_index];
+
+                if !self.binary_output {
+                    let mut max_value:&Neuron = &lyr.neurons[0];
+                    for neuron_index in 0..lyr.neurons.len() {
+                        if lyr.neurons[neuron_index].act() > max_value.act() {
+                            max_value = &lyr.neurons[neuron_index];
+                        }
                     }
+                    return max_value.id() as i64;
+                } else {
+                    return lyr.neurons.last().expect("Failed to get last neuron").act().round() as i64;
                 }
-                return max_value.id() as i64;
             }
             None => {
                 panic!("failed to retrieve last layer")
