@@ -4,7 +4,8 @@ use itertools::Itertools;
 
 use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::functions::derivative_sigmoid};
 use crate::activation_functions::functions::{
-    sigmoid
+    sigmoid,
+    exp_decay_coef
 };
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -123,7 +124,7 @@ impl Network {
         err
     }
 
-    pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, ) {
+    pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, current_epoch:f64) {
         let actual_y:i64 = inputs.correct_value;
         let predicted_output:i64 = self.get_network_output();
         for lyr_index in (0..self.layers.len()).rev() {
@@ -138,6 +139,7 @@ impl Network {
                 } else {
                     partial_gradient = self.layers[lyr_index].neurons[n_index].err()
                          * derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum())
+                         * exp_decay_coef(current_epoch)
                 }
 
                 //updating bias by this partial gradient
@@ -191,7 +193,6 @@ impl Network {
                 sum += self.get_network_cost(img.correct_value);
             }
             denom = set.images.len() as f64;
-            print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
         }
         else {
             for i in 1..=sample_size {
@@ -201,7 +202,6 @@ impl Network {
                 sum += self.get_network_cost(img.correct_value);
             }
             denom = sample_size as f64;
-            print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
         }
         let mean: f64 = sum / denom;
@@ -234,7 +234,8 @@ impl Network {
                 self.backpropagate(
                     individual, 
                     learning_rate, 
-                    regularization_c
+                    regularization_c,
+                    epoch as f64
                 );
 
                 self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
