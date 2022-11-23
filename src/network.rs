@@ -1,15 +1,18 @@
+use std::iter;
+
 use itertools::Itertools;
 
 use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::functions::derivative_sigmoid};
 use crate::activation_functions::functions::{
     sigmoid
 };
-
+use indicatif::{ProgressBar, ProgressStyle};
 
 pub struct Network {
     pub layers: Vec<Layer>,
     pub cost:f64,
-    pub binary_output:bool
+    pub binary_output:bool,
+    pub epochs:i64,
 }
 
 
@@ -21,7 +24,7 @@ impl Network {
     }
 
     pub fn new(layer_sizes:Vec<usize>, binary_output:bool) -> Network {
-        let mut network:Network = Network { layers: Vec::new(), cost:0.0, binary_output: binary_output };
+        let mut network:Network = Network { layers: Vec::new(), cost:0.0, binary_output: binary_output, epochs:0 };
         for size_index in 0..layer_sizes.len()
         {
             let last_index = layer_sizes.len() - 1;
@@ -96,7 +99,7 @@ impl Network {
         output
     }
 
-    fn generate_cost(&mut self, actual:i64) {
+    fn get_network_cost(&mut self, actual:i64) -> f64{
         let mut err:f64 = 0.0;
         let outputs:Vec<f64> = self.get_output_vec();
         if !self.binary_output {
@@ -116,18 +119,13 @@ impl Network {
                     .act()
             ).powf(2.0);
         }
-        self.cost = err;
+        // self.cost = err;
+        err
     }
 
     pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, ) {
-
-        self.set_inputs(&inputs.pixel_brightness);
-        self.feedforward();
-
         let actual_y:i64 = inputs.correct_value;
         let predicted_output:i64 = self.get_network_output();
-        self.generate_cost(actual_y);
-
         for lyr_index in (0..self.layers.len()).rev() {
 
             let mut partial_gradient:f64 = 0.0;
@@ -172,43 +170,83 @@ impl Network {
         }
     }
 
-    pub fn sgd(&mut self, set:&Dataset, learning_rate:f64, epochs:usize, regularization_c:f64) {
-        for img_i in 0..epochs {
-            self.set_inputs(
-                &set.images[img_i].pixel_brightness
-            );
 
-            self.feedforward();
-
-            self.generate_cost(set.images[img_i].correct_value);
-
-            self.backpropagate(
-                &set.images[img_i], 
-                learning_rate, 
-                regularization_c
-            );
-
-            let mut output_activation: f64;
-
-            if self.binary_output {
-                output_activation = self.layers.last()
-                .expect("Failed to get last layer")
-                .neurons.last()
-                .expect("failed to get last neuron")
-                .act()
-            } else {
-                output_activation = self.layers.last()
-                .expect("Failed to get last layer")
-                .neurons[self.get_network_output() as usize]
-                .act();
+    pub fn generate_mean_cost(&mut self, set:&Dataset, sample_size: usize, random_sample:bool) -> f64{
+        let mut sum:f64 = 0.0;
+        let mut denom:f64 = 0.0;
+        let bar_length:u64 = {
+            if !random_sample {
+                set.images.len() as u64
             }
+            else {
+                sample_size as u64
+            }
+        };
+
+
+        if !random_sample {
+            for img in &set.images {
+                self.set_inputs(&img.pixel_brightness);
+                self.feedforward();
+                sum += self.get_network_cost(img.correct_value);
+            }
+            denom = set.images.len() as f64;
+            print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        }
+        else {
+            for i in 1..=sample_size {
+                let img:&NumberImg = set.random_choice();
+                self.set_inputs(&img.pixel_brightness);
+                self.feedforward();
+                sum += self.get_network_cost(img.correct_value);
+            }
+            denom = sample_size as f64;
+            print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+
+        }
+        let mean: f64 = sum / denom;
+        mean
+    }
+
+    pub fn sgd(
+        &mut self, 
+        set:&mut Dataset,
+        learning_rate:f64, 
+        epochs:usize, 
+        regularization_c:f64, 
+        batch_size:usize, 
+        iterations_per_epoch:usize,
+        cost_sample_size:usize,
+        simple_random_sample:bool
+    ) {
+        for epoch in 1..=epochs {
+            let bar = ProgressBar::new(iterations_per_epoch as u64);
+            bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:40.blue/red} {pos:>7}/{len:7} {msg}")
+                .unwrap()
+                .progress_chars("██▒"));
+
+            for iteration in 1..=iterations_per_epoch {
+                let individual:&NumberImg = set.random_choice();
+                self.set_inputs(
+                    &individual.pixel_brightness
+                );
+    
+                self.backpropagate(
+                    individual, 
+                    learning_rate, 
+                    regularization_c
+                );
+
+                self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
+                bar.inc(1);
+                bar.set_message(format!("Average Cost: {}", self.cost()));
+            }
+            bar.finish();
+
             println!(
-                "Epoch {} complete. Cost:{}, Predicted:{}, Actual:{}, Output activation:{}", 
-                img_i + 1, 
+                "Epoch {} complete. Cost:{}", 
+                epoch, 
                 self.cost(),
-                self.get_network_output(),
-                &set.images[img_i].correct_value,
-                output_activation,
             );
         }
     }

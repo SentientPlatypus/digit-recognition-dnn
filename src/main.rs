@@ -9,6 +9,7 @@ use network::Network;
 
 fn main() {
     let mut my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
+    my_dataset.shuffle();
     my_dataset.filter_by_output(vec![0, 1]);
 
 
@@ -18,14 +19,17 @@ fn main() {
     );
 
 
-    println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
+    // println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
     
     classification_network.sgd(
-        &my_dataset, 
+        &mut my_dataset, 
         0.0001, 
+        200,
+        0.1,
+        5,
+        10,
         20,
-        0.1
+        true
     );
-
 }
 

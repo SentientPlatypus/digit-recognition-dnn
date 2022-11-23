@@ -3,7 +3,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
-
+use rand::thread_rng;
+use rand::seq::SliceRandom;
 
 pub struct NumberImg {
   pub pixel_brightness:Vec<f64>,
@@ -99,5 +100,17 @@ impl Dataset {
   pub fn filter_by_output(&mut self, to_retain:Vec<i64>) {
     self.images.retain(|x| to_retain.contains(&x.correct_value))
   }
+
+
+  pub fn shuffle(&mut self) {
+    let mut rng: rand::rngs::ThreadRng = thread_rng();
+    self.images.shuffle(&mut rng);
+  }
+
+  pub fn random_choice(&self) -> &NumberImg{
+    let mut rng: rand::rngs::ThreadRng = thread_rng();
+    self.images.choose(&mut rng).expect("failed to get random image")
+  }
+
 }
 
