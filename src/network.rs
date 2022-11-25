@@ -2,10 +2,13 @@ use std::iter;
 
 use itertools::Itertools;
 
-use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::functions::derivative_sigmoid};
+use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}};
 use crate::activation_functions::functions::{
     sigmoid,
-    exp_decay_coef
+    derivative_sigmoid,
+    exp_decay_coef,
+    relu,
+    derivative_relu
 };
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -86,7 +89,13 @@ impl Network {
                 }
                 sum += self.layers[layer_index].neurons[neuron_index].bias();
                 self.layers[layer_index].neurons[neuron_index].set_sum(sum);
-                let new_activation = sigmoid(sum);
+
+
+                let new_activation = match self.layers[layer_index].kind {
+                    LayerKind::InputLayer => relu(sum),
+                    LayerKind::HiddenLayer => relu(sum),
+                    LayerKind::OutputLayer => sigmoid(sum)
+                };
                 self.layers[layer_index].neurons[neuron_index].set_act(new_activation);
             }
         }
@@ -100,7 +109,7 @@ impl Network {
         output
     }
 
-    fn get_network_cost(&mut self, actual:i64) -> f64{
+    pub fn get_network_cost(&mut self, actual:i64) -> f64{
         let mut err:f64 = 0.0;
         let outputs:Vec<f64> = self.get_output_vec();
         if !self.binary_output {
@@ -135,15 +144,19 @@ impl Network {
             for n_index in 0..self.layers[lyr_index].len() {
                 //Check if we are iterating through the last layer
                 if lyr_index == self.layers.len() - 1  {
-                    partial_gradient = -2.00 * (actual_y - predicted_output) as f64
+                    partial_gradient = -2.00 * (actual_y - predicted_output) as f64 
                 } else {
                     partial_gradient = self.layers[lyr_index].neurons[n_index].err()
-                         * derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum())
-                         * exp_decay_coef(current_epoch)
                 }
 
+                partial_gradient *= match self.layers[lyr_index].kind {
+                    LayerKind::HiddenLayer => derivative_relu(self.layers[lyr_index].neurons[n_index].sum()),
+                    LayerKind::InputLayer => derivative_relu(self.layers[lyr_index].neurons[n_index].sum()),
+                    LayerKind::OutputLayer => derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum())
+                };
+
                 //updating bias by this partial gradient
-                let new_bias:f64 = self.layers[lyr_index].neurons[n_index].bias() - learning_rate * partial_gradient;
+                let new_bias:f64 = self.layers[lyr_index].neurons[n_index].bias() - learning_rate * partial_gradient * exp_decay_coef(current_epoch);
 
                 self.layers[lyr_index].neurons[n_index].set_bias(
                     new_bias
@@ -165,7 +178,7 @@ impl Network {
                     }
                     gradient += regularization_c * self.layers[lyr_index].neurons[n_index].weight(in_index);
                     
-                    let new_weight:f64 = self.layers[lyr_index].neurons[n_index].weight(in_index) - learning_rate * gradient;
+                    let new_weight:f64 = self.layers[lyr_index].neurons[n_index].weight(in_index) - learning_rate * gradient * exp_decay_coef(current_epoch);
                     self.layers[lyr_index].neurons[n_index].set_weight(in_index, new_weight);
                 }
             }
@@ -173,6 +186,7 @@ impl Network {
     }
 
 
+    ///Returns mean cost over randomly picking <sample_size> number images from the dataset
     pub fn generate_mean_cost(&mut self, set:&Dataset, sample_size: usize, random_sample:bool) -> f64{
         let mut sum:f64 = 0.0;
         let mut denom:f64 = 0.0;
@@ -184,7 +198,6 @@ impl Network {
                 sample_size as u64
             }
         };
-
 
         if !random_sample {
             for img in &set.images {
@@ -202,7 +215,6 @@ impl Network {
                 sum += self.get_network_cost(img.correct_value);
             }
             denom = sample_size as f64;
-
         }
         let mean: f64 = sum / denom;
         mean
@@ -218,12 +230,16 @@ impl Network {
         iterations_per_epoch:usize,
         cost_sample_size:usize,
         simple_random_sample:bool
-    ) {
+    ) 
+    {
         for epoch in 1..=epochs {
+
             let bar = ProgressBar::new(iterations_per_epoch as u64);
             bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:40.blue/red} {pos:>7}/{len:7} {msg}")
                 .unwrap()
-                .progress_chars("██▒"));
+                .progress_chars("▓▓▒"));
+
+            let mut correct_predictions:i64 = 0;
 
             for iteration in 1..=iterations_per_epoch {
                 let individual:&NumberImg = set.random_choice();
@@ -238,9 +254,17 @@ impl Network {
                     epoch as f64
                 );
 
+                if self.get_network_output() == individual.correct_value {
+                    correct_predictions += 1;
+                }
+
                 self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
                 bar.inc(1);
-                bar.set_message(format!("Average Cost: {}", self.cost()));
+                bar.set_message(format!("Average Cost: {} ({} correct/ {} iterations)", 
+                    self.cost(), 
+                    correct_predictions, 
+                    iterations_per_epoch
+                ));
             }
             bar.finish();
 

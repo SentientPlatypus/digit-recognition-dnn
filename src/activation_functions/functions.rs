@@ -25,3 +25,10 @@ pub fn relu(v:f64) -> f64 {
     }
     v
 }
+
+pub fn derivative_relu(v:f64) -> f64 {
+    if v > 0.0 {
+        return 1.0
+    } 
+    return 0.0
+}
