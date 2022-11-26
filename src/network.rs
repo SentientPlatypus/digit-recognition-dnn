@@ -11,7 +11,7 @@ use crate::activation_functions::functions::{
     derivative_relu
 };
 use indicatif::{ProgressBar, ProgressStyle};
-
+use textplots::{Chart, Plot, Shape};
 pub struct Network {
     pub layers: Vec<Layer>,
     pub cost:f64,
@@ -232,48 +232,72 @@ impl Network {
         simple_random_sample:bool
     ) 
     {
+
+        let mut avg_costs:Vec<(f32, f32)> = Vec::new();
         for epoch in 1..=epochs {
 
             let bar = ProgressBar::new(iterations_per_epoch as u64);
             bar.set_style(ProgressStyle::with_template("[{elapsed_precise}] {bar:40.blue/red} {pos:>7}/{len:7} {msg}")
                 .unwrap()
-                .progress_chars("▓▓▒"));
+                .progress_chars("▰▰╍"));
 
             let mut correct_predictions:i64 = 0;
+            let mut sum:f64 = 0.0;
+            let mut denom:f64 = 0.0;
+            let mut mean = 0.0;
+
+            let mut batch:Vec<&NumberImg> = Vec::new();
+            for case in 1..=batch_size {
+                batch.push(set.random_choice());
+            }
 
             for iteration in 1..=iterations_per_epoch {
-                let individual:&NumberImg = set.random_choice();
-                self.set_inputs(
-                    &individual.pixel_brightness
-                );
+
+                for img in &batch {
+                    self.set_inputs(
+                        &img.pixel_brightness
+                    );
+                    
+                    self.feedforward();
+
+                    self.backpropagate(
+                        img, 
+                        learning_rate, 
+                        regularization_c,
+                        epoch as f64
+                    );
     
-                self.backpropagate(
-                    individual, 
-                    learning_rate, 
-                    regularization_c,
-                    epoch as f64
-                );
-
-                if self.get_network_output() == individual.correct_value {
-                    correct_predictions += 1;
+                    sum += self.get_network_cost(img.correct_value);
+                    denom += 1.0;
+    
+                    if self.get_network_output() == img.correct_value {
+                        correct_predictions += 1;
+                    }
                 }
-
-                self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
+                self.cost = sum / denom;
+                mean = sum / denom;
+                // self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
                 bar.inc(1);
-                bar.set_message(format!("Average Cost: {} ({} correct/ {} iterations)", 
+                bar.set_message(format!("Average Cost: {} ({} correct/ {})", 
                     self.cost(), 
                     correct_predictions, 
-                    iterations_per_epoch
+                    denom
                 ));
             }
-            bar.finish();
 
+
+            avg_costs.push((epoch as f32, mean as f32));
+
+            bar.finish();
             println!(
                 "Epoch {} complete. Cost:{}", 
                 epoch, 
                 self.cost(),
             );
         }
+        Chart::new(200, 60, 0.0, epochs as f32 + 5.0 )
+        .lineplot(&Shape::Lines(&avg_costs))
+        .display();
     }
 
     pub fn get_network_output(&self) -> i64 {
