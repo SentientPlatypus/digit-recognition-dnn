@@ -82,6 +82,10 @@ impl Neuron {
         self.sum = value
     }
 
+    pub fn set_err(&mut self, value:f64) {
+        self.error_sum = value;
+    }
+
     pub fn add_err(&mut self, value:f64) {
         self.error_sum += value
     }

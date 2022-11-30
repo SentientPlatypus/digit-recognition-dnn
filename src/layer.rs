@@ -51,10 +51,6 @@ impl Layer {
         layer
     }
 
-    fn get_neuron(&self, index:usize) -> &Neuron {
-        &self.neurons[index]
-    }
-
     pub fn out_features(&self) -> usize{
         self.out_features
     }

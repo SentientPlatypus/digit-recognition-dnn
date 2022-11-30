@@ -14,7 +14,7 @@ pub struct NumberImg {
 
 fn generate_true_vec(id:usize) -> Vec<f64> {
   let mut output:Vec<f64> = Vec::new();
-  for n in (0 as usize..=9) {
+  for n in 0 as usize..=9 {
     if n == id {
       output.push(1.0);
     } else {

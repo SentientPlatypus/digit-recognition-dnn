@@ -1,6 +1,9 @@
-use std::iter;
+///
+/// THE NETWORK
+/// 
 
-use itertools::Itertools;
+
+
 
 use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}};
 use crate::activation_functions::functions::{
@@ -12,6 +15,8 @@ use crate::activation_functions::functions::{
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use textplots::{Chart, Plot, Shape};
+
+
 pub struct Network {
     pub layers: Vec<Layer>,
     pub cost:f64,
@@ -33,10 +38,14 @@ impl Network {
         {
             let last_index = layer_sizes.len() - 1;
 
-            let kind:LayerKind = match size_index {
-                0 => LayerKind::InputLayer,
-                last_index=> LayerKind::OutputLayer,
-                _=> LayerKind::HiddenLayer
+            let kind: LayerKind = {
+                if size_index == 0 {
+                    LayerKind::InputLayer
+                } else if size_index == last_index {
+                    LayerKind::OutputLayer  
+                } else {
+                    LayerKind::HiddenLayer
+                }
             };
 
             let mut in_features:usize = 1 as usize;
@@ -58,9 +67,20 @@ impl Network {
     }
 
     pub fn set_inputs(&mut self, pixels:&Vec<f64>) {
-        let input_layer = &mut self.layers[0];
+        let input_layer: &mut Layer = &mut self.layers[0];
         for neuron_index in 0..input_layer.len() {
             input_layer.neurons[neuron_index].set_act(f64::from(pixels[neuron_index]));
+            input_layer.neurons[neuron_index].set_err(0.0);
+        }
+    }
+
+    pub fn reset(&mut self) {
+        for layer_i in 0..self.layers.len() {
+            for neuron_index in 0..self.layers[layer_i].neurons.len() {
+                self.layers[layer_i].neurons[neuron_index].set_err(0.0);
+                self.layers[layer_i].neurons[neuron_index].set_sum(0.0);
+                self.layers[layer_i].neurons[neuron_index].set_act(0.0);
+            }
         }
     }
 
@@ -136,10 +156,11 @@ impl Network {
     pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, current_epoch:f64) {
         let actual_y:i64 = inputs.correct_value;
         let predicted_output:i64 = self.get_network_output();
-        for lyr_index in (0..self.layers.len()).rev() {
+        let new_learning_rate:f64 = learning_rate * exp_decay_coef(current_epoch);
+        for lyr_index in (1..self.layers.len()).rev() {
 
-            let mut partial_gradient:f64 = 0.0;
-            let mut gradient:f64 = 0.0;
+            let mut partial_gradient:f64;
+            let mut gradient:f64;
 
             for n_index in 0..self.layers[lyr_index].len() {
                 //Check if we are iterating through the last layer
@@ -156,16 +177,16 @@ impl Network {
                 };
 
                 //updating bias by this partial gradient
-                let new_bias:f64 = self.layers[lyr_index].neurons[n_index].bias() - learning_rate * partial_gradient * exp_decay_coef(current_epoch);
+                let new_bias:f64 = self.layers[lyr_index].neurons[n_index].bias() - new_learning_rate * partial_gradient;
 
                 self.layers[lyr_index].neurons[n_index].set_bias(
                     new_bias
                 );
 
-                for in_index in 0..self.layers[lyr_index].in_features() - 1 {
+                for in_index in 0..self.layers[lyr_index].in_features() {
                     //Check if we are at the input layer
-                    if lyr_index == 0 {
-                        gradient = partial_gradient * self.layers[lyr_index].neurons[n_index].act();
+                    if lyr_index == 1 {
+                        gradient = partial_gradient * self.layers[lyr_index - 1].neurons[n_index].act();
                     } else {
                         //set gradient to the product of partial gradient and the previous layer's neuron's activation
                         gradient = partial_gradient * self.layers[lyr_index - 1].neurons[in_index].act();
@@ -178,7 +199,7 @@ impl Network {
                     }
                     gradient += regularization_c * self.layers[lyr_index].neurons[n_index].weight(in_index);
                     
-                    let new_weight:f64 = self.layers[lyr_index].neurons[n_index].weight(in_index) - learning_rate * gradient * exp_decay_coef(current_epoch);
+                    let new_weight:f64 = self.layers[lyr_index].neurons[n_index].weight(in_index) - new_learning_rate * gradient;
                     self.layers[lyr_index].neurons[n_index].set_weight(in_index, new_weight);
                 }
             }
@@ -189,15 +210,7 @@ impl Network {
     ///Returns mean cost over randomly picking <sample_size> number images from the dataset
     pub fn generate_mean_cost(&mut self, set:&Dataset, sample_size: usize, random_sample:bool) -> f64{
         let mut sum:f64 = 0.0;
-        let mut denom:f64 = 0.0;
-        let bar_length:u64 = {
-            if !random_sample {
-                set.images.len() as u64
-            }
-            else {
-                sample_size as u64
-            }
-        };
+        let denom:f64;
 
         if !random_sample {
             for img in &set.images {
@@ -208,7 +221,7 @@ impl Network {
             denom = set.images.len() as f64;
         }
         else {
-            for i in 1..=sample_size {
+            for _i in 1..=sample_size {
                 let img:&NumberImg = set.random_choice();
                 self.set_inputs(&img.pixel_brightness);
                 self.feedforward();
@@ -247,11 +260,11 @@ impl Network {
             let mut mean = 0.0;
 
             let mut batch:Vec<&NumberImg> = Vec::new();
-            for case in 1..=batch_size {
+            for _case in 1..=batch_size {
                 batch.push(set.random_choice());
             }
 
-            for iteration in 1..=iterations_per_epoch {
+            for _iteration in 1..=iterations_per_epoch {
 
                 for img in &batch {
                     self.set_inputs(
@@ -264,8 +277,9 @@ impl Network {
                         img, 
                         learning_rate, 
                         regularization_c,
-                        epoch as f64
+                        epoch as f64 - 1.0
                     );
+                    self.reset();
     
                     sum += self.get_network_cost(img.correct_value);
                     denom += 1.0;
@@ -276,7 +290,10 @@ impl Network {
                 }
                 self.cost = sum / denom;
                 mean = sum / denom;
-                // self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
+
+                if simple_random_sample {
+                    self.cost = self.generate_mean_cost(set, cost_sample_size, simple_random_sample);
+                }
                 bar.inc(1);
                 bar.set_message(format!("Average Cost: {} ({} correct/ {})", 
                     self.cost(), 
