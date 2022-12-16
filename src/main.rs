@@ -25,23 +25,25 @@ fn main() {
 
 
 
-
-    // classification_network.set_inputs(&my_dataset.images[0].pixel_brightness);
-    // classification_network.feedforward();
-    // println!("Correct value: {:#?}", my_dataset.images[0].correct_value);
-    // println!("predicted value: {:#?}", classification_network.get_network_output());
-    // println!("{:#?}", classification_network.get_network_cost(my_dataset.images[0].correct_value));
-
-    classification_network.sgd(
-        &mut my_dataset, 
-        0.001, 
-        50,
-        0.1,
-        10,
-        10,
-        10,
-        false
-    );
+    let random_numberimg = my_dataset.random_choice();
+    classification_network.set_inputs(&random_numberimg.pixel_brightness);
+    classification_network.feedforward();
+    println!("Correct value: {:#?}", random_numberimg.correct_value);
+    println!("predicted value: {:#?}", classification_network.get_network_output());
+    println!("{:#?}", classification_network.get_network_cost(random_numberimg.correct_value));
     println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
+    classification_network.backpropagate(random_numberimg, 0.001, 0.1, 1);
+    classification_network.feedforward();
+    println!("{:#?}", classification_network.layers[4]);
+
+
+    // classification_network.sgd(
+    //     &mut my_dataset, 
+    //     0.001, 
+    //     50,
+    //     0.1,
+    //     10,
+    //     10,
+    // );
 }
 

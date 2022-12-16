@@ -99,4 +99,8 @@ impl Neuron {
             self.weights[index] = rand::thread_rng().gen_range(-1.0..1.0);
         }
     }
+
+    pub fn generate_random_bias(&mut self) {
+        self.set_bias(rand::thread_rng().gen_range(-1.0..1.0));
+    }
 }

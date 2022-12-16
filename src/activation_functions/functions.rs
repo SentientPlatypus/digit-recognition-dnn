@@ -15,7 +15,7 @@ pub fn derivative_sigmoid(v:f64) ->f64 {
 }
 
 pub fn exp_decay_coef(epochs:f64) -> f64 {
-    (-1.0/30.0 * epochs).exp()
+    (-1.0/10.0 * epochs).exp()
 }
 
 pub fn relu(v:f64) -> f64 {
