@@ -123,8 +123,8 @@ impl Network {
 
                 // APPLY ACTIVATION FUNCTION BASED UPON LAYER
                 let new_activation = match self.layers[layer_index].kind {
-                    LayerKind::InputLayer => relu(sum),
-                    LayerKind::HiddenLayer => relu(sum),
+                    LayerKind::InputLayer => sigmoid(sum),
+                    LayerKind::HiddenLayer => sigmoid(sum),
                     LayerKind::OutputLayer => sigmoid(sum)
                 };
                 self.layers[layer_index].neurons[neuron_index].set_act(new_activation);
@@ -193,8 +193,8 @@ impl Network {
                 }
 
                 partial_gradient *= match self.layers[lyr_index].kind {
-                    LayerKind::HiddenLayer => derivative_relu(self.layers[lyr_index].neurons[n_index].sum()),
-                    LayerKind::InputLayer => derivative_relu(self.layers[lyr_index].neurons[n_index].sum()),
+                    LayerKind::HiddenLayer => derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum()),
+                    LayerKind::InputLayer => derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum()),
                     LayerKind::OutputLayer => derivative_sigmoid(self.layers[lyr_index].neurons[n_index].sum())
                 };
 
