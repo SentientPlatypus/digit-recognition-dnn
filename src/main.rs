@@ -11,6 +11,7 @@ use network::Network;
 
 
 fn main() {
+    
     let mut my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
     my_dataset.shuffle();
     my_dataset.filter_by_output(vec![0, 1]);
@@ -41,7 +42,7 @@ fn main() {
         &mut my_dataset, 
         0.001, 
         50,
-        0.8,
+        0.9,
         10,
         10,
     );
