@@ -1,10 +1,12 @@
 use rand::Rng;
 use std::fmt;
+use serde::{Deserialize, Serialize};
 
 
 #[derive(Default)]
 
 
+#[derive(Serialize, Deserialize)]
 
 pub struct Neuron {
     pub id:usize,

@@ -13,8 +13,12 @@ use crate::activation_functions::functions::{
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use textplots::{Chart, Plot, Shape};
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
 
 
+
+#[derive(Serialize, Deserialize)]
 pub struct Network {
     pub layers: Vec<Layer>,
     pub cost:f64,
@@ -340,6 +344,11 @@ impl Network {
         self.cost
     }
 
+    pub fn save(&self) ->String {
+        let as_json_str:String = serde_json::to_string(self).unwrap();
+        as_json_str
+
+    }
 
 }
 

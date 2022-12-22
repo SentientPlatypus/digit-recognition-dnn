@@ -1,7 +1,10 @@
 use crate::neuron::{Neuron};
 use std::fmt;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
+#[derive(Serialize, Deserialize)]
+
 pub enum LayerKind {
     InputLayer,
     OutputLayer,
@@ -13,6 +16,7 @@ pub enum LayerKind {
 //         write!(f, "{:?}", self)
 //     }
 // }
+#[derive(Serialize, Deserialize)]
 
 pub struct Layer {
     pub neurons: Vec<Neuron>,

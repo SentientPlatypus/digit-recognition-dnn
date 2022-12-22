@@ -5,6 +5,7 @@ pub mod activation_functions;
 pub mod image_processing;
 use image_processing::Dataset;
 use image_processing::NumberImg;
+use layer::Layer;
 use network::Network;
 
 
@@ -24,7 +25,8 @@ fn main() {
     );
 
 
-
+    println!("{:#?}",classification_network.save());
+    
 
     // let random_numberimg = my_dataset.random_choice();
     // classification_network.set_inputs(&random_numberimg.pixel_brightness);

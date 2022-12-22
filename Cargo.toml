@@ -10,8 +10,10 @@ image = "0.24.3"
 rand = "0.8.3"
 len-trait = "0.6.1"
 itertools = "0.10.5"
-serde = "1.0"
+
 libmath = "0.2.1"
-serde_json = "1.0"
+serde_json = "1.0.91"
+serde = { version = "1.0", features = ["derive"] }
+json = "0.12.4"
 indicatif = "0.17.2"
 textplots = "0.8.0"
