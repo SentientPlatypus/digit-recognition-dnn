@@ -14,7 +14,8 @@ use crate::activation_functions::functions::{
 use indicatif::{ProgressBar, ProgressStyle};
 use textplots::{Chart, Plot, Shape};
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
+use std::fs::File;
+use std::io::Write;
 
 
 
@@ -344,10 +345,18 @@ impl Network {
         self.cost
     }
 
-    pub fn save(&self) ->String {
+    pub fn save(&self, path:String) {
         let as_json_str:String = serde_json::to_string(self).unwrap();
-        as_json_str
+        let mut file = File::create(path).expect("Failed to get file");
 
+        // Write the JSON string to the file
+        file.write_all(as_json_str.as_bytes()).expect("Failed to write");
+    }
+
+    pub fn from_file(path:String) -> Network{
+        let file = File::open(path).expect("failed to open path");
+        let net: Network = serde_json::from_reader(file).expect("failed to deserialize");
+        net
     }
 
 }

@@ -5,7 +5,6 @@ pub mod activation_functions;
 pub mod image_processing;
 use image_processing::Dataset;
 use image_processing::NumberImg;
-use layer::Layer;
 use network::Network;
 
 
@@ -24,8 +23,9 @@ fn main() {
         true
     );
 
+    classification_network = Network::from_file(String::from("data/network.json"));
 
-    println!("{:#?}",classification_network.save());
+
     
 
     // let random_numberimg = my_dataset.random_choice();
@@ -34,19 +34,29 @@ fn main() {
     // println!("Correct value: {:#?}", random_numberimg.correct_value);
     // println!("predicted value: {:#?}", classification_network.get_network_output());
     // println!("{:#?}", classification_network.get_network_cost(random_numberimg.correct_value));
-    // println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
-    // classification_network.backpropagate(random_numberimg, 0.001, 0.1, 1);
-    // classification_network.feedforward();
-    // println!("{:#?}", classification_network.layers[4]);
 
 
-    classification_network.sgd(
-        &mut my_dataset, 
-        0.001, 
-        50,
-        0.9,
-        10,
-        10,
-    );
+    // classification_network.sgd(
+    //     &mut my_dataset, 
+    //     0.001, 
+    //     1,
+    //     0.9,
+    //     10,
+    //     10,
+    // );
+
+    // classification_network.save(String::from("data/network.json"));
+    println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
+
 }
 
+// -0.7901158135667322,
+// 0.35426968065969705,
+// 0.056474956014694495,
+// ],
+// },
+// ],
+// kind: OutputLayer,
+// in_features: 392,
+// out_features: 1,
+// }
