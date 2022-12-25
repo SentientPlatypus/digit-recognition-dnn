@@ -3,7 +3,7 @@
 /// 
 
 
-use crate::{layer::{Layer, LayerKind}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}};
+use crate::{layer::{Layer, LayerKind, self}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::functions::softmax};
 use crate::activation_functions::functions::{
     sigmoid,
     derivative_sigmoid,
@@ -80,8 +80,6 @@ impl Network {
         for layer_i in 0..self.layers.len() {
             for neuron_index in 0..self.layers[layer_i].neurons.len() {
                 self.layers[layer_i].neurons[neuron_index].set_err(0.0);
-                // self.layers[layer_i].neurons[neuron_index].set_sum(0.0);
-                // self.layers[layer_i].neurons[neuron_index].set_act(0.0);
             }
         }
     }
@@ -212,8 +210,8 @@ impl Network {
 
                 //iterate through the range of the size of the previous layer AKA the in features of the layer
                 for in_index in 0..self.layers[lyr_index].in_features() {
-                    //Check if we are at the input layer
-                    if lyr_index == 1 {
+                    //Check if we are at the output_layer
+                    if lyr_index    == 1 {
                         //gradient = partial gradient * input layer activation at index in_index
                         gradient = partial_gradient * self.layers[lyr_index - 1].neurons[in_index].act();
                     } else {
@@ -345,7 +343,7 @@ impl Network {
         self.cost
     }
 
-    pub fn save(&self, path:String) {
+    pub fn to_file(&self, path:String) {
         let as_json_str:String = serde_json::to_string(self).unwrap();
         let mut file = File::create(path).expect("Failed to get file");
 

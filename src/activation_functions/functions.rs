@@ -1,4 +1,7 @@
 
+use crate::layer::Layer;
+
+
 
 pub fn sigmoid(v: f64) -> f64 {
     if v < -40.0 {
@@ -31,4 +34,16 @@ pub fn derivative_relu(v:f64) -> f64 {
         return 1.0
     } 
     return 0.0
+}
+
+
+pub fn softmax(v:f64, layer:&Layer) -> f64 {
+    let denom:f64 = {
+        let mut sum:f64 = 0.0;
+        for neuron in &layer.neurons {
+            sum += neuron.act().exp();
+        }
+        sum
+    };
+    v.exp() / denom
 }

@@ -15,7 +15,7 @@ fn main() {
     let mut my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
     my_dataset.shuffle();
     my_dataset.filter_by_output(vec![0, 1]);
-    let _first_img:&NumberImg = &my_dataset.images[0];
+    let first_img: &NumberImg = &my_dataset.images[0];
 
 
     let mut classification_network:Network = Network::new(
@@ -23,31 +23,20 @@ fn main() {
         true
     );
 
-    classification_network = Network::from_file(String::from("data/network.json"));
 
 
-    
 
-    // let random_numberimg = my_dataset.random_choice();
-    // classification_network.set_inputs(&random_numberimg.pixel_brightness);
-    // classification_network.feedforward();
-    // println!("Correct value: {:#?}", random_numberimg.correct_value);
-    // println!("predicted value: {:#?}", classification_network.get_network_output());
-    // println!("{:#?}", classification_network.get_network_cost(random_numberimg.correct_value));
-
-
-    // classification_network.sgd(
-    //     &mut my_dataset, 
-    //     0.001, 
-    //     1,
-    //     0.9,
-    //     10,
-    //     10,
-    // );
+    classification_network.sgd(
+        &mut my_dataset, 
+        0.001, 
+        75,
+        0.9,
+        10,
+        10,
+    );
 
     // classification_network.save(String::from("data/network.json"));
     println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
-
 }
 
 // -0.7901158135667322,
