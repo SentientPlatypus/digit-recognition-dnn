@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub enum LayerKind {
     InputLayer,
     OutputLayer,
-    HiddenLayer
+    HiddenLayer,
 }
 
 // impl fmt::Debug for LayerKind {

@@ -19,6 +19,7 @@ use std::io::Write;
 
 
 
+
 #[derive(Serialize, Deserialize)]
 pub struct Network {
     pub layers: Vec<Layer>,
@@ -111,6 +112,7 @@ impl Network {
 
                 //the sum is 0
                 let mut sum:f64 = 0.0;
+                let mut new_activation:f64;
 
                 //Iterate through the weights of the current neuron
                 for weight_index in 0..self.layers[layer_index].neurons[neuron_index].weights.len(){
@@ -125,11 +127,11 @@ impl Network {
                 self.layers[layer_index].neurons[neuron_index].set_sum(sum);
 
                 // APPLY ACTIVATION FUNCTION BASED UPON LAYER
-                let new_activation = match self.layers[layer_index].kind {
+                new_activation = match self.layers[layer_index].kind {
                     LayerKind::InputLayer => sigmoid(sum),
                     LayerKind::HiddenLayer => sigmoid(sum),
-                    LayerKind::OutputLayer => sigmoid(sum)
-                };
+                    LayerKind::OutputLayer => sigmoid(sum),
+                };    
                 self.layers[layer_index].neurons[neuron_index].set_act(new_activation);
             }
         }
@@ -143,6 +145,22 @@ impl Network {
             output.push(neuron.act())
         }
         output
+    }
+
+    pub fn get_true_output_vec(&self, actual_y:i64) -> Vec<f64> {
+        if self.binary_output {
+            return vec![actual_y as f64];
+        } else {
+            let mut output_vec:Vec<f64> = Vec::new();
+            for neuron_id in 0..self.layers.last().expect("Failed to get output layer").len() {
+                if neuron_id == actual_y as usize {
+                    output_vec.push(1.0);
+                } else{
+                    output_vec.push(0.0);
+                }
+            }
+            return output_vec
+        }
     }
 
     pub fn get_network_cost(&mut self, actual:i64) -> f64{
@@ -169,15 +187,17 @@ impl Network {
                     .act()
             ).powf(2.0);
         }
-        // self.cost = err;
+        // for n in 0..outputs.len() {
+        //     err += actual as f * outputs[n].ln()
+        // }
+        // err * -1.0
         err
     }
 
     pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, current_epoch:usize) {
-        let actual_y:i64 = inputs.correct_value;
-        let predicted_output:i64 = self.get_network_output();
+        let true_output_vec: Vec<f64> = self.get_true_output_vec(inputs.correct_value);
+        let predicted_output_vec:Vec<f64> = self.get_output_vec();
         let new_learning_rate:f64 = learning_rate * exp_decay_coef(current_epoch as f64 - 1.0);
-
 
         //Iterate through all the layers except the input from the last to the first
         for lyr_index in (1..self.layers.len()).rev() {
@@ -188,9 +208,10 @@ impl Network {
             //Iterate through all the neurons of the layer
             for n_index in 0..self.layers[lyr_index].len() {
 
-                //Check if we are iterating through the last layer
-                if lyr_index == self.layers.len() - 1  {
-                    partial_gradient = -2.00 * (actual_y - predicted_output) as f64 
+                //Check if we are iterating through the last layer (THE ONE BEFORE SOFTMAX)
+                if lyr_index == self.layers.len() - 2  {
+                    //IF WE ARE USING CROSS ENTROPY LOSS:  
+                    partial_gradient = -2.00 * (true_output_vec[n_index] - predicted_output_vec[n_index]) as f64 
                 } else {
                     partial_gradient = self.layers[lyr_index].neurons[n_index].err()
                 }
@@ -210,8 +231,8 @@ impl Network {
 
                 //iterate through the range of the size of the previous layer AKA the in features of the layer
                 for in_index in 0..self.layers[lyr_index].in_features() {
-                    //Check if we are at the output_layer
-                    if lyr_index    == 1 {
+                    //Check if we are at the input layer
+                    if lyr_index == 1 {
                         //gradient = partial gradient * input layer activation at index in_index
                         gradient = partial_gradient * self.layers[lyr_index - 1].neurons[in_index].act();
                     } else {

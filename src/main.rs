@@ -15,15 +15,19 @@ fn main() {
     let mut my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
     my_dataset.shuffle();
     my_dataset.filter_by_output(vec![0, 1]);
-    let first_img: &NumberImg = &my_dataset.images[0];
 
-
+    
+    //THERES A SOFTMAX LAYER TOO, IDIOT!!!
     let mut classification_network:Network = Network::new(
         vec![784, 684, 584, 484, 392, 1],
         true
     );
 
+    
 
+
+    
+    
 
 
     classification_network.sgd(
@@ -35,8 +39,7 @@ fn main() {
         10,
     );
 
-    // classification_network.save(String::from("data/network.json"));
-    println!("{:#?}", classification_network.layers.last().expect("Failed to get output layer"));
+    classification_network.to_file(String::from("data/network.json"));
 }
 
 // -0.7901158135667322,

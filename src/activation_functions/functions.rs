@@ -47,3 +47,6 @@ pub fn softmax(v:f64, layer:&Layer) -> f64 {
     };
     v.exp() / denom
 }
+
+
+
