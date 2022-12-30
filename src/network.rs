@@ -3,7 +3,7 @@
 /// 
 
 
-use crate::{layer::{Layer, LayerKind, self}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::functions::softmax};
+use crate::{layer::{Layer, LayerKind, self}, neuron::{Neuron, }, image_processing::{NumberImg, Dataset}, activation_functions::{functions::{softmax, cross_entropy_loss, softmax2}, self}};
 use crate::activation_functions::functions::{
     sigmoid,
     derivative_sigmoid,
@@ -88,8 +88,8 @@ impl Network {
     //initializes network with random weights
     pub fn initialize(&mut self){
 
-        //Go through each layer except the input
-        (1..self.layers.len()).for_each(|layer_index: usize| 
+        //Go through each layer except the input and softmax layer
+        (1..self.layers.len() - 1).for_each(|layer_index: usize| 
         {
             //Go through each neuron of the above layer
             (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
@@ -105,33 +105,48 @@ impl Network {
 
     pub fn feedforward(&mut self) {
         //Iterate through the layers except for the first layer
+
+        let mut softmax_vals:Vec<f64> = Vec::new();
         for layer_index in 1..self.layers.len() {
 
+            // CHECK IF SOFTMAX_LYR
+            if layer_index == self.layers.len() - 1 {
+                softmax_vals= softmax2(&self.layers[layer_index - 1]);
+            }
             // Iterate through the neurons of that layer
             for neuron_index in 0..self.layers[layer_index].neurons.len() {
 
                 //the sum is 0
                 let mut sum:f64 = 0.0;
-                let mut new_activation:f64;
+                let new_activation:f64;
 
-                //Iterate through the weights of the current neuron
-                for weight_index in 0..self.layers[layer_index].neurons[neuron_index].weights.len(){
-                    sum += 
-                        self.layers[layer_index].neurons[neuron_index].weights[weight_index] * 
-                        self.layers[layer_index - 1].neurons[weight_index].act();
+                //Check if its the softmax layer
+                if layer_index == self.layers.len() - 1 {
+                    assert_eq!(self.layers[layer_index - 1].neurons.len(), self.layers[layer_index].neurons.len());
+                    // new_activation = softmax(self.layers[layer_index - 1].neurons[neuron_index].act(), &self.layers[layer_index]);
+                    new_activation = softmax_vals[neuron_index];
                 }
-                //ADD BIAS
-                sum += self.layers[layer_index].neurons[neuron_index].bias();
+                else {
+                    //Iterate through the weights of the current neuron
+                    for weight_index in 0..self.layers[layer_index].neurons[neuron_index].weights.len(){
+                        sum += 
+                            self.layers[layer_index].neurons[neuron_index].weights[weight_index] * 
+                            self.layers[layer_index - 1].neurons[weight_index].act();
+                    }
+                    //ADD BIAS
+                    sum += self.layers[layer_index].neurons[neuron_index].bias();
 
-                //SET SUM
-                self.layers[layer_index].neurons[neuron_index].set_sum(sum);
+                    //SET SUM
+                    self.layers[layer_index].neurons[neuron_index].set_sum(sum);
 
-                // APPLY ACTIVATION FUNCTION BASED UPON LAYER
-                new_activation = match self.layers[layer_index].kind {
-                    LayerKind::InputLayer => sigmoid(sum),
-                    LayerKind::HiddenLayer => sigmoid(sum),
-                    LayerKind::OutputLayer => sigmoid(sum),
-                };    
+                    // APPLY ACTIVATION FUNCTION BASED UPON LAYER
+                    new_activation = match self.layers[layer_index].kind {
+                        LayerKind::InputLayer => sigmoid(sum),
+                        LayerKind::HiddenLayer => sigmoid(sum),
+                        LayerKind::OutputLayer => sigmoid(sum),
+                    };    
+                }
+
                 self.layers[layer_index].neurons[neuron_index].set_act(new_activation);
             }
         }
@@ -164,18 +179,12 @@ impl Network {
     }
 
     pub fn get_network_cost(&mut self, actual:i64) -> f64{
-        let mut err:f64 = 0.0;
+        let err:f64;
         let outputs:Vec<f64> = self.get_output_vec();
 
         //Is it not a binary output? eg: one neuron output?
         if !self.binary_output {
-            for r in 0..outputs.len() {
-                if r == actual as usize {
-                    err += (1.0 - outputs[r]).powf(2.0);
-                } else {
-                    err += (0.0 - outputs[r]).powf(2.0);
-                }
-            }
+            err = cross_entropy_loss(actual, outputs);
         } else {
             //IT IS A BINARY OUTPUT
             //MSE
@@ -199,8 +208,8 @@ impl Network {
         let predicted_output_vec:Vec<f64> = self.get_output_vec();
         let new_learning_rate:f64 = learning_rate * exp_decay_coef(current_epoch as f64 - 1.0);
 
-        //Iterate through all the layers except the input from the last to the first
-        for lyr_index in (1..self.layers.len()).rev() {
+        //Iterate through all the layers except the input from the last to the first (THE MINUS ONE IS TO EXCLUDE THE SOFTMAX LAYER)
+        for lyr_index in (1..self.layers.len() - 1).rev() {
 
             let mut partial_gradient:f64;
             let mut gradient:f64;
@@ -211,7 +220,7 @@ impl Network {
                 //Check if we are iterating through the last layer (THE ONE BEFORE SOFTMAX)
                 if lyr_index == self.layers.len() - 2  {
                     //IF WE ARE USING CROSS ENTROPY LOSS:  
-                    partial_gradient = -2.00 * (true_output_vec[n_index] - predicted_output_vec[n_index]) as f64 
+                    partial_gradient = (predicted_output_vec[n_index] - true_output_vec[n_index]) as f64 
                 } else {
                     partial_gradient = self.layers[lyr_index].neurons[n_index].err()
                 }

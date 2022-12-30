@@ -1,4 +1,6 @@
 
+use json::number::NumberOutOfScope;
+
 use crate::layer::Layer;
 
 
@@ -48,5 +50,46 @@ pub fn softmax(v:f64, layer:&Layer) -> f64 {
     v.exp() / denom
 }
 
+/*
+SOFTMAX BUT REMOVES THE MAXIMUM VALUE??? */
+pub fn softmax2(layer:&Layer) -> Vec<f64> {
+    let max_act:usize = {
+        let mut neuron_in:usize = 0;
+        for neuron_i in 0..layer.neurons.len() {
+            if layer.neurons[neuron_i].act() > layer.neurons[neuron_in].act() {
+                neuron_in = neuron_i;
+            }
+        }
+        neuron_in
+    };
 
+    let mut output:Vec<f64> = Vec::new();
+    for neuron_i in 0..layer.neurons.len() {
+        output.push(layer.neurons[neuron_i].act() - layer.neurons[max_act].act());
+    }
 
+    let denom:f64 = {
+        let mut sum:f64 = 0.0;
+        for x in &output {
+            sum += x.exp();
+        }
+        sum
+    };
+
+    let mut softmaxlyr:Vec<f64> = Vec::new();
+    for i in 0..output.len() {
+        softmaxlyr.push(output[i].exp() / denom)
+    }
+
+    softmaxlyr
+}
+
+pub fn cross_entropy_loss(actual:i64, output_vec:Vec<f64>) ->f64 {
+    let mut sum:f64 = 0.0;
+    for val_i in 0..output_vec.len() {
+        if val_i == actual as usize {
+            sum += 1.00 * output_vec[val_i].ln()
+        }
+    }
+    -1.00 * sum
+}
