@@ -196,10 +196,6 @@ impl Network {
                     .act()
             ).powf(2.0);
         }
-        // for n in 0..outputs.len() {
-        //     err += actual as f * outputs[n].ln()
-        // }
-        // err * -1.0
         err
     }
 
@@ -209,7 +205,7 @@ impl Network {
         let new_learning_rate:f64 = learning_rate * exp_decay_coef(current_epoch as f64 - 1.0);
 
         //Iterate through all the layers except the input from the last to the first (THE MINUS ONE IS TO EXCLUDE THE SOFTMAX LAYER)
-        for lyr_index in (1..self.layers.len() - 1).rev() {
+        for lyr_index in (1..=self.layers.len() - 2).rev() {
 
             let mut partial_gradient:f64;
             let mut gradient:f64;

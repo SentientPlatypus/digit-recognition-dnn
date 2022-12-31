@@ -32,9 +32,9 @@ fn main() {
 
     classification_network.sgd(
         &mut my_dataset, 
-        0.01, 
-        25,
-        1.5,
+        0.001, 
+        75,
+        0.9,
         32,
         10,
     );
