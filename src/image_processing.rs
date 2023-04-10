@@ -102,14 +102,14 @@ impl Dataset {
   }
 
 
+  ///shuffles the dataset.
   pub fn shuffle(&mut self) {
-    ///shuffles the dataset.
     let mut rng: rand::rngs::ThreadRng = thread_rng();
     self.images.shuffle(&mut rng);
   }
 
+  ///gets a random image from the dataset.
   pub fn random_choice(&self) -> &NumberImg{
-    ///gets a random image from the dataset.
     let mut rng: rand::rngs::ThreadRng = thread_rng();
     self.images.choose(&mut rng).expect("failed to get random image")
   }
