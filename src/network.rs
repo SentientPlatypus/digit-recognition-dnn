@@ -36,6 +36,7 @@ impl Network {
     }
 
     pub fn new(layer_sizes:Vec<usize>, binary_output:bool) -> Network {
+        ///Creates a new network.
         let mut network:Network = Network { layers: Vec::new(), cost:0.0, binary_output: binary_output};
         for size_index in 0..layer_sizes.len()
         {
@@ -70,6 +71,7 @@ impl Network {
     }
 
     pub fn set_inputs(&mut self, pixels:&Vec<f64>) {
+        ///Literally for putting your inputs into the input layer.
         let input_layer: &mut Layer = &mut self.layers[0];
         for neuron_index in 0..input_layer.len() {
             input_layer.neurons[neuron_index].set_act(f64::from(pixels[neuron_index]));
@@ -78,6 +80,7 @@ impl Network {
     }
 
     pub fn reset(&mut self) {
+        ///Resets the error in each neuron of the network. Should do this after each backpropagation
         for layer_i in 0..self.layers.len() {
             for neuron_index in 0..self.layers[layer_i].neurons.len() {
                 self.layers[layer_i].neurons[neuron_index].set_err(0.0);
@@ -87,6 +90,7 @@ impl Network {
 
     //initializes network with random weights
     pub fn initialize(&mut self){
+        ///Initializes network with random weights and biases.
 
         //Go through each layer except the input and softmax layer
         (1..self.layers.len() - 1).for_each(|layer_index: usize| 
@@ -104,7 +108,7 @@ impl Network {
 
 
     pub fn feedforward(&mut self) {
-        //Iterate through the layers except for the first layer
+        ///Iterate through the layers except for the first layer
 
         let mut softmax_vals:Vec<f64> = Vec::new();
         for layer_index in 1..self.layers.len() {
@@ -155,6 +159,7 @@ impl Network {
 
     //Getting the output vector. 
     pub fn get_output_vec(&self) -> Vec<f64> {
+        ///returns the current output layer.
         let mut output:Vec<f64> = Vec::new();
         for neuron in &self.layers.last().expect("Failed to get output layer").neurons {
             output.push(neuron.act())
@@ -163,6 +168,7 @@ impl Network {
     }
 
     pub fn get_true_output_vec(&self, actual_y:i64) -> Vec<f64> {
+        /// Returns what the output layer should have been.
         if self.binary_output {
             return vec![actual_y as f64];
         } else {
@@ -179,6 +185,7 @@ impl Network {
     }
 
     pub fn get_network_cost(&mut self, actual:i64) -> f64{
+        ///Gets the cost of the network. the actual parameter is what the actual output should have been.
         let err:f64;
         let outputs:Vec<f64> = self.get_output_vec();
 
@@ -200,6 +207,7 @@ impl Network {
     }
 
     pub fn backpropagate(&mut self, inputs:&NumberImg, learning_rate:f64, regularization_c:f64, current_epoch:usize) {
+        ///Does one backpropagation step.
         let true_output_vec: Vec<f64> = self.get_true_output_vec(inputs.correct_value);
         let predicted_output_vec:Vec<f64> = self.get_output_vec();
         let new_learning_rate:f64 = learning_rate * exp_decay_coef(current_epoch as f64 - 1.0);

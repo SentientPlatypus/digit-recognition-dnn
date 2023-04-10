@@ -23,12 +23,6 @@ fn main() {
         false
     );
 
-    
-
-
-
-    
-
 
     classification_network.sgd(
         &mut my_dataset, 
@@ -56,14 +50,3 @@ fn main() {
     }
     // classification_network.to_file(String::from("data/network.json"));
 }
-
-// -0.7901158135667322,
-// 0.35426968065969705,
-// 0.056474956014694495,
-// ],
-// },
-// ],
-// kind: OutputLayer,
-// in_features: 392,
-// out_features: 1,
-// }
