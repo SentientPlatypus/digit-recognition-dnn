@@ -1,4 +1,6 @@
 
+use std::f32::consts::E;
+
 use json::number::NumberOutOfScope;
 
 use crate::layer::Layer;
@@ -88,7 +90,9 @@ pub fn cross_entropy_loss(actual:i64, output_vec:Vec<f64>) ->f64 {
     let mut sum:f64 = 0.0;
     for val_i in 0..output_vec.len() {
         if val_i == actual as usize {
-            sum += 1.00 * output_vec[val_i].ln()
+            sum += E as f64 * output_vec[val_i].ln()
+        } else {
+            sum += 1.00 / E as f64 * output_vec[val_i].ln()
         }
     }
     -1.00 * sum
