@@ -110,11 +110,6 @@ impl Network {
     pub fn feedforward(&mut self) {
         let mut softmax_vals:Vec<f64> = Vec::new();
         for layer_index in 1..self.layers.len() {
-
-            // CHECK IF SOFTMAX_LYR
-            if layer_index == self.layers.len() - 1 {
-                softmax_vals= softmax2(&self.layers[layer_index - 1]);
-            }
             // Iterate through the neurons of that layer
             for neuron_index in 0..self.layers[layer_index].neurons.len() {
 
@@ -125,8 +120,7 @@ impl Network {
                 //Check if its the softmax layer
                 if layer_index == self.layers.len() - 1 {
                     assert_eq!(self.layers[layer_index - 1].neurons.len(), self.layers[layer_index].neurons.len());
-                    // new_activation = softmax(self.layers[layer_index - 1].neurons[neuron_index].act(), &self.layers[layer_index]);
-                    new_activation = softmax_vals[neuron_index];
+                    new_activation = softmax(self.layers[layer_index - 1].neurons[neuron_index].act(), &self.layers[layer_index]);
                 }
                 else {
                     //Iterate through the weights of the current neuron
