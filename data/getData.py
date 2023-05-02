@@ -16,11 +16,8 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-
 name = 'W:\Code\Machine Learning\digit-recognition-dnn\data\mnist.pkl.gz'
 data_json_path = "data\data.json"
-
-
 
 with gzip.open(name, 'rb') as f:
     u = pickle._Unpickler( f )

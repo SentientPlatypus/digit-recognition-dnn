@@ -28,7 +28,7 @@ optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 
 # train the network
 batch_size = 64
-num_epochs = 100
+num_epochs = 10
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 
 for epoch in range(num_epochs):

@@ -93,22 +93,35 @@ impl Network {
     ///Initializes network with random weights and biases.
     pub fn initialize(&mut self){
         //Go through each layer except the input and softmax layer
-        (1..self.layers.len() - 1).for_each(|layer_index: usize| 
-        {
-            //Go through each neuron of the above layer
-            (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
-            {
-                for count in 0..self.layers[layer_index].in_features{
-                    self.layers[layer_index].neurons[neuron_index].generate_random_weight(count);
-                }
-                self.layers[layer_index].neurons[neuron_index].generate_random_bias();
-            });
-        });   
+        if self.binary_output {
+            (1..self.layers.len()).for_each(|layer_index: usize| 
+                {
+                    //Go through each neuron of the above layer
+                    (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
+                    {
+                        for count in 0..self.layers[layer_index].in_features{
+                            self.layers[layer_index].neurons[neuron_index].generate_random_weight(count);
+                        }
+                        self.layers[layer_index].neurons[neuron_index].generate_random_bias();
+                    });
+                });
+        } else {
+            (1..self.layers.len() - 1).for_each(|layer_index: usize| 
+                {
+                    //Go through each neuron of the above layer
+                    (0..self.layers[layer_index].neurons.len()).for_each(|neuron_index: usize| 
+                    {
+                        for count in 0..self.layers[layer_index].in_features{
+                            self.layers[layer_index].neurons[neuron_index].generate_random_weight(count);
+                        }
+                        self.layers[layer_index].neurons[neuron_index].generate_random_bias();
+                    });
+                });           
+        }
     }
 
     ///Iterate through the layers except for the first layer
     pub fn feedforward(&mut self) {
-        let mut softmax_vals:Vec<f64> = Vec::new();
         for layer_index in 1..self.layers.len() {
             // Iterate through the neurons of that layer
             for neuron_index in 0..self.layers[layer_index].neurons.len() {
@@ -118,9 +131,9 @@ impl Network {
                 let new_activation:f64;
 
                 //Check if its the softmax layer
-                if layer_index == self.layers.len() - 1 {
+                if !self.binary_output && layer_index == self.layers.len() - 1 {
                     assert_eq!(self.layers[layer_index - 1].neurons.len(), self.layers[layer_index].neurons.len());
-                    new_activation = softmax(self.layers[layer_index - 1].neurons[neuron_index].act(), &self.layers[layer_index]);
+                    new_activation = softmax(self.layers[layer_index - 1].neurons[neuron_index].act(), &self.layers[layer_index - 1]);
                 }
                 else {
                     //Iterate through the weights of the current neuron
@@ -185,6 +198,7 @@ impl Network {
         //Is it not a binary output? eg: one neuron output?
         if !self.binary_output {
             err = cross_entropy_loss(actual, outputs);
+            // println!("{}", self.layers.last().expect("f").neurons.last().unwrap().act())
         } else {
             //IT IS A BINARY OUTPUT
             //MSE
@@ -195,6 +209,8 @@ impl Network {
                     .expect("failed to get last neuron")
                     .act()
             ).powf(2.0);
+            // println!("{}", actual);
+            // println!("{}", self.layers.last().expect("f").neurons.last().unwrap().act())
         }
         err
     }
@@ -206,7 +222,12 @@ impl Network {
         let new_learning_rate:f64 = learning_rate * exp_decay_coef(current_epoch as f64 - 1.0);
 
         //Iterate through all the layers except the input from the last to the first (THE MINUS ONE IS TO EXCLUDE THE SOFTMAX LAYER)
-        for lyr_index in (1..=self.layers.len() - 2).rev() {
+        let mut lyr_limit = self.layers.len() - 2;
+        if self.binary_output {
+            lyr_limit = self.layers.len() - 1
+        }
+        
+        for lyr_index in (1..=lyr_limit).rev() {
 
             let mut partial_gradient:f64;
             let mut gradient:f64;
@@ -215,11 +236,19 @@ impl Network {
             for n_index in 0..self.layers[lyr_index].len() {
 
                 //Check if we are iterating through the last layer (THE ONE BEFORE SOFTMAX)
-                if lyr_index == self.layers.len() - 2  {
-                    //IF WE ARE USING CROSS ENTROPY LOSS:  
-                    partial_gradient = (predicted_output_vec[n_index] - true_output_vec[n_index]) as f64 
+                if !self.binary_output {
+                    if lyr_index == self.layers.len() - 2  {
+                        //IF WE ARE USING CROSS ENTROPY LOSS:  
+                        partial_gradient = (predicted_output_vec[n_index] - true_output_vec[n_index]) as f64 
+                    } else {
+                        partial_gradient = self.layers[lyr_index].neurons[n_index].err()
+                    }
                 } else {
-                    partial_gradient = self.layers[lyr_index].neurons[n_index].err()
+                    if lyr_index == self.layers.len() - 1  {
+                        partial_gradient = -2.00 * (true_output_vec[n_index] - predicted_output_vec[n_index]) as f64 
+                    } else {
+                        partial_gradient = self.layers[lyr_index].neurons[n_index].err()
+                    }
                 }
 
                 partial_gradient *= match self.layers[lyr_index].kind {
@@ -309,7 +338,7 @@ impl Network {
     
                     sum += self.get_network_cost(img.correct_value);
                     denom += 1.0;
-    
+                    self.cost = self.get_network_cost(img.correct_value);
                     if self.get_network_output() == img.correct_value {
                         correct_predictions += 1;
                     }
@@ -320,7 +349,7 @@ impl Network {
                 mean = sum / denom;
                 bar.inc(1);
                 bar.set_message(format!("Average Cost: {} ({} correct/ {})", 
-                    self.cost(), 
+                    self.cost(),  
                     correct_predictions, 
                     denom
                 ));

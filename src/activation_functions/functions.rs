@@ -82,7 +82,6 @@ pub fn softmax2(layer:&Layer) -> Vec<f64> {
     for i in 0..output.len() {
         softmaxlyr.push(output[i].exp() / denom)
     }
-
     softmaxlyr
 }
 

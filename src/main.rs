@@ -14,22 +14,28 @@ fn main() {
     
     let mut my_dataset:Dataset = Dataset::generate_full(String::from("data/data.json"));
     my_dataset.shuffle();
-    // my_dataset.filter_by_output(vec![0, 1]);
 
+
+    // my_dataset.filter_by_output(vec![0, 1]);
+    // let mut classification_network:Network = Network::new(
+    //     vec![784, 684, 584, 484, 392, 100,  1],
+    //     true
+    // );
     
-    //THERES A SOFTMAX LAYER TOO, IDIOT!!!
+    // THERES A SOFTMAX LAYER TOO, IDIOT!!!
     let mut classification_network:Network = Network::new(
         vec![784, 684, 584, 484, 392, 10, 10],
         false
     );
 
 
+
     classification_network.sgd(
         &mut my_dataset, 
         0.001, 
-        75,
-        0.9,
-        32,
+        30,
+        0.01,
+        10,
         10,
     );
 
