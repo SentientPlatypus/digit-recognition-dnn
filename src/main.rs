@@ -16,24 +16,24 @@ fn main() {
     my_dataset.shuffle();
 
 
-    // my_dataset.filter_by_output(vec![0, 1]);
-    // let mut classification_network:Network = Network::new(
-    //     vec![784, 684, 584, 484, 392, 100,  1],
-    //     true
-    // );
+    my_dataset.filter_by_output(vec![0, 1]);
+    let mut classification_network:Network = Network::new(
+        vec![784, 684, 584, 484, 392, 100,  1],
+        true
+    );
     
     // THERES A SOFTMAX LAYER TOO, IDIOT!!!
-    let mut classification_network:Network = Network::new(
-        vec![784, 684, 584, 484, 392, 10, 10],
-        false
-    );
+    // let mut classification_network:Network = Network::new(
+    //     vec![784, 684, 584, 484, 392, 10, 10],
+    //     false
+    // );
 
 
 
     classification_network.sgd(
         &mut my_dataset, 
         0.001, 
-        30,
+        50,
         0.01,
         10,
         10,
