@@ -356,7 +356,7 @@ impl Network {
             }
 
 
-            avg_costs.push((epoch as f32, mean as f32));
+            avg_costs.push((epoch as f32, self.cost() as f32));
 
             bar.finish();
             println!(
