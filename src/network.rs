@@ -349,7 +349,7 @@ impl Network {
                 mean = sum / denom;
                 bar.inc(1);
                 bar.set_message(format!("Average Cost: {} ({} correct/ {})", 
-                    self.cost(),  
+                    mean,  
                     correct_predictions, 
                     denom
                 ));
