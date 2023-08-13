@@ -42,9 +42,9 @@
     <br />
     <a href="https://www.youtube.com/watch?v=Okraa2ZElrE">Watch the video!</a>
     ·
-    <a href="https://github.com/Sentientplatypus/circle-area-proof/issues">Report Bug</a>
+    <a href="https://github.com/Sentientplatypus/digit-recognition-dnn/issues">Report Bug</a>
     ·
-    <a href="https://github.com/Sentientplatypus/circle-area-proof/issues">Request Feature</a>
+    <a href="https://github.com/Sentientplatypus/digit-recognition-dnn/issues">Request Feature</a>
   </p>
 </div>
 
@@ -122,7 +122,7 @@ well, almost everything.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/Sentientplatypus/circle-area-proof.git
+   git clone https://github.com/Sentientplatypus/digit-recognition-dnn.git
    ```
 2. Run the crate with 
     ```sh
@@ -160,7 +160,7 @@ _For more examples, please refer to the `main.rs` file_
 - [x] Multiclassification
     - [x] Softmax + Cross Entropy Loss
 
-See the [open issues](https://github.com/Sentientplatypus/circle-area-proof/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/Sentientplatypus/digit-recognition-dnn/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -188,7 +188,7 @@ Don't forget to give the project a star! Thanks again!
 
 Geneustace Wicaksono - [My Website](https://genewica.herokuapp.com) - geneustacewicaksono@yahoo.com
 
-Project Link: [https://github.com/Sentientplatypus/circle-area-proof](https://github.com/Sentientplatypus/circle-area-proof)
+Project Link: [https://github.com/Sentientplatypus/digit-recognition-dnn](https://github.com/Sentientplatypus/digit-recognition-dnn)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -206,16 +206,16 @@ Project Link: [https://github.com/Sentientplatypus/circle-area-proof](https://gi
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Sentientplatypus/circle-area-proof.svg?style=for-the-badge
-[contributors-url]: https://github.com/Sentientplatypus/circle-area-proof/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Sentientplatypus/circle-area-proof.svg?style=for-the-badge
-[forks-url]: https://github.com/Sentientplatypus/circle-area-proof/network/members
-[stars-shield]: https://img.shields.io/github/stars/Sentientplatypus/circle-area-proof.svg?style=for-the-badge
-[stars-url]: https://github.com/Sentientplatypus/circle-area-proof/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Sentientplatypus/circle-area-proof.svg?style=for-the-badge
-[issues-url]: https://github.com/Sentientplatypus/circle-area-proof/issues
-[license-shield]: https://img.shields.io/github/license/Sentientplatypus/circle-area-proof.svg?style=for-the-badge
-[license-url]: https://github.com/Sentientplatypus/circle-area-proof/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/Sentientplatypus/digit-recognition-dnn.svg?style=for-the-badge
+[contributors-url]: https://github.com/Sentientplatypus/digit-recognition-dnn/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Sentientplatypus/digit-recognition-dnn.svg?style=for-the-badge
+[forks-url]: https://github.com/Sentientplatypus/digit-recognition-dnn/network/members
+[stars-shield]: https://img.shields.io/github/stars/Sentientplatypus/digit-recognition-dnn.svg?style=for-the-badge
+[stars-url]: https://github.com/Sentientplatypus/digit-recognition-dnn/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Sentientplatypus/digit-recognition-dnn.svg?style=for-the-badge
+[issues-url]: https://github.com/Sentientplatypus/digit-recognition-dnn/issues
+[license-shield]: https://img.shields.io/github/license/Sentientplatypus/digit-recognition-dnn.svg?style=for-the-badge
+[license-url]: https://github.com/Sentientplatypus/digit-recognition-dnn/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
 [product-screenshot]: image-2.png
