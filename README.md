@@ -81,9 +81,12 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<img src="https://miro.medium.com/v2/resize:fit:1400/1*XdCMCaHPt-pqtEibUfAnNw.png">
 
-I watched 3b1b's video. I thought that was really cool, so I tried to do it from scratch. I was also learning rust at the time, so I did it in rust! It was a good learning experience for both rust learning and neural network theory. When I got stuck, or my net seemed like it was just guessing, I got tips from my friend <a href="https://github.com/junyoung-sim">jun</a>. He let me use his dads lecture notes which helped, and sauced me a page of differentials for the backpropagation. This was really fun to develop. 
+I watched 3b1b's video. I thought that was really cool, so I tried to do it from scratch. 
+Pretty much, this program takes the brightness value of each pixel of the written digit, flattens the 28x28 image into a 784 element vector, and uses that as an input into a neural network. Then, we feedforward and backpropagate.  
+I was also learning rust at the time, so I did it in rust! It was a good learning experience for both rust learning and neural network theory. When I got stuck, or my net seemed like it was just guessing, I got tips from my friend <a href="https://github.com/junyoung-sim">jun</a>. He let me use his dads lecture notes which helped, and sauced me a page of differentials for the backpropagation. This was really fun to develop. I had to get the dataset in rust though, and that was hard. That is what `getData.py` is for. I parse the pkl file into a json, and then rust can read the json.
+![Alt text](image-1.png)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -100,9 +103,9 @@ I watched 3b1b's video. I thought that was really cool, so I tried to do it from
 <!-- GETTING STARTED -->
 ## Getting Started
 
-If you wish to recycle some of my animations, they are all found in the `Scenes` folder. 
-![Alt text](image.png)
-![Alt text](image-1.png)
+Everything is in the crate! 
+
+well, almost everything.
 
 ### Prerequisites
 
