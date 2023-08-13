@@ -29,7 +29,7 @@
 <br />
 <div align="center">
   <a href="https://user-images.githubusercontent.com/83039642/209047770-ecc908db-65f4-46d9-88c6-1957ac7ec625.png">
-    <img src="thumbnail.png" alt="Logo">
+    <img src="https://miro.medium.com/v2/resize:fit:1400/1*XdCMCaHPt-pqtEibUfAnNw.png">
   </a>
 
 <h3 align="center">Classifying MNIST from scratch.</h3>
@@ -80,8 +80,6 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-<img src="https://miro.medium.com/v2/resize:fit:1400/1*XdCMCaHPt-pqtEibUfAnNw.png">
 
 I watched 3b1b's video. I thought that was really cool, so I tried to do it from scratch. 
 Pretty much, this program takes the brightness value of each pixel of the written digit, flattens the 28x28 image into a 784 element vector, and uses that as an input into a neural network. Then, we feedforward and backpropagate.  
